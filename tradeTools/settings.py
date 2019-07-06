@@ -37,7 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'grapheneTool.apps.GraphenetoolConfig',
+    'testTool',
+    'graphene_django',
 ]
 
 MIDDLEWARE = [
@@ -79,7 +80,7 @@ WSGI_APPLICATION = 'tradeTools.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'hdb2',
+        'NAME': 'hdb',
         'USER': 'hdb_role',
         'PASSWORD': 'hdb123!@##@!',
         'HOST': '127.0.0.1',
@@ -124,3 +125,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = '/static/'
+
+GRAPHENE = {
+    'SCHEMA': 'tradeTools.schema.schema'
+}

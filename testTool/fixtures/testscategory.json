@@ -1,0 +1,16 @@
+[
+   {
+      "model":"testTool.testCategory",
+      "pk":1,
+      "fields":{
+         "name":"Dairy"
+      }
+   },
+   {
+      "model":"testTool.testCategory",
+      "pk":2,
+      "fields":{
+         "name":"Meat"
+      }
+   }
+]
