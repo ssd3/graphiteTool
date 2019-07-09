@@ -27,6 +27,9 @@ class Product(models.Model):
     userid = models.ForeignKey('User', models.DO_NOTHING, db_column='UserID')  # Field name made lowercase.
     created = models.DateTimeField(db_column='Created')  # Field name made lowercase.
 
+    def __str__(self):
+        return self.title
+
     class Meta:
         managed = False
         db_table = 'Product'
@@ -48,6 +51,3 @@ class User(models.Model):
     class Meta:
         managed = False
         db_table = 'User'
-
-
-
