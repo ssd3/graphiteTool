@@ -1,0 +1,10 @@
+/idea
+.idea
+/graphiteEnv
+.graphiteEnv
+__pycache__/
+*.py[cod]
+*.log
+*.pot
+*.pyc
+local_settings.py
