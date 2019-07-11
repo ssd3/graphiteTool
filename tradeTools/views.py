@@ -1,7 +1,9 @@
-from django.shortcuts import render
-from django.http import HttpResponse
-# Create your views here.
+from django.http import HttpResponseRedirect
+from django.contrib.auth.views import LoginView
 
 
-def index(request):
-    return HttpResponse("Index/login page")
+def custom_login(request):
+    if request.user.is_authenticated:
+        return HttpResponseRedirect('graphql/')
+    else:
+        return LoginView.as_view()(request)

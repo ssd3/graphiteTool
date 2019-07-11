@@ -129,3 +129,6 @@ STATIC_URL = '/static/'
 GRAPHENE = {
     'SCHEMA': 'tradeTools.schema.schema'
 }
+
+LOGIN_REDIRECT_URL = 'graphql/'
+

@@ -1,5 +1,6 @@
 import graphene
 from graphene_django import DjangoObjectType
+from graphql_extensions.auth.decorators import login_required
 from .models import Product, Category, User
 
 
@@ -30,6 +31,7 @@ class Query(graphene.ObjectType):
     products = graphene.List(ProductType)
     categories = graphene.List(CategoryType)
 
+    @login_required
     def resolve_user(self, info, **kwargs):
         userid = kwargs.get('userid')
         username = kwargs.get('username')
@@ -50,12 +52,15 @@ class Query(graphene.ObjectType):
 
         return None
 
+    @login_required
     def resolve_users(self, info, **kwargs):
         return User.objects.all()
 
+    @login_required
     def resolve_products(self, info, **kwargs):
         return Product.objects.all().order_by('-productid')
 
+    @login_required
     def resolve_categories(self, info, **kwargs):
         return Category.objects.all()
 
