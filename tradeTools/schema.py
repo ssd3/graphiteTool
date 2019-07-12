@@ -1,4 +1,5 @@
 import graphene
+import datetime
 from graphene_django import DjangoObjectType
 from graphql_extensions.auth.decorators import login_required
 from .models import Product, Category, AuthUser
@@ -19,9 +20,26 @@ class CategoryType(DjangoObjectType):
         model = Category
 
 
+class CreateCategory(graphene.Mutation):
+    class Arguments:
+        title = graphene.String()
+
+    category = graphene.Field(CategoryType)
+
+    def mutate(self, info, title):
+        userinstance = AuthUser.objects.get(id=info.context.user.id)
+        category = Category(title=title, userid=userinstance, created=datetime.datetime.now())
+        category.save()
+
+        return CreateCategory(category=category)
+
+
+class MyMutations(graphene.ObjectType):
+    create_category = CreateCategory.Field()
+
+
 class Query(graphene.ObjectType):
     users = graphene.List(UserType)
-
     user = graphene.Field(UserType,
                           userid=graphene.Int(),
                           username=graphene.String(),
@@ -65,4 +83,4 @@ class Query(graphene.ObjectType):
         return Category.objects.all()
 
 
-schema = graphene.Schema(query=Query)
+schema = graphene.Schema(query=Query, mutation=MyMutations)
