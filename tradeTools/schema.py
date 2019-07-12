@@ -1,12 +1,12 @@
 import graphene
 from graphene_django import DjangoObjectType
 from graphql_extensions.auth.decorators import login_required
-from .models import Product, Category, User
+from .models import Product, Category, AuthUser
 
 
 class UserType(DjangoObjectType):
     class Meta:
-        model = User
+        model = AuthUser
 
 
 class ProductType(DjangoObjectType):
@@ -39,22 +39,22 @@ class Query(graphene.ObjectType):
         description = kwargs.get('description')
 
         if userid is not None:
-            return User.objects.get(pk=userid)
+            return AuthUser.objects.get(pk=userid)
 
         if username is not None:
-            return User.objects.get(username=username)
+            return AuthUser.objects.get(username=username)
 
         if email is not None:
-            return User.objects.get(email=email)
+            return AuthUser.objects.get(email=email)
 
         if description is not None:
-            return User.objects.get(description=description)
+            return AuthUser.objects.get(description=description)
 
         return None
 
     @login_required
     def resolve_users(self, info, **kwargs):
-        return User.objects.all()
+        return AuthUser.objects.all()
 
     @login_required
     def resolve_products(self, info, **kwargs):
