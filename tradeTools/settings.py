@@ -130,5 +130,6 @@ GRAPHENE = {
     'SCHEMA': 'tradeTools.schema.schema'
 }
 
-LOGIN_REDIRECT_URL = 'graphql/'
+LOGIN_REDIRECT_URL = 'index/'
+LOGOUT_REDIRECT_URL = '/'
 
