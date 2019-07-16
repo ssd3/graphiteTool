@@ -66,7 +66,7 @@ class Query(graphene.ObjectType):
     products = graphene.List(ProductType)
     categories = graphene.List(CategoryType)
 
-    @login_required
+
     def resolve_user(self, info, **kwargs):
         userid = kwargs.get('userid')
         username = kwargs.get('username')

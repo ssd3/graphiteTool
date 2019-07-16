@@ -1,5 +1,5 @@
 from django.utils import timezone
-from tradeTools.models import AuthUser, Category
+from .models import AuthUser, Category
 
 
 def initdata_users():
@@ -11,12 +11,17 @@ def initdata_users():
                         is_active=True, is_staff=True, is_superuser=True)
     user.save()
 
-'''
-def initdata_categories():
-    user = AuthUser(username='testUser', password='testUser', date_joined=timezone.now(),
-                    is_active=True, is_staff=True, is_superuser=True)
-    user.save()
 
-    category = Category(title='Category1', userid=user, created=timezone.now())
+def initdata_categories():
+    initdata_users()
+
+    category = Category(title='Category1', userid=AuthUser.objects.get(username='testUser'), created=timezone.now())
     category.save()
-'''
+
+    category = Category(title='Category2', userid=AuthUser.objects.get(username='testUser'), created=timezone.now())
+    category.save()
+
+    category = Category(title='Category3', userid=AuthUser.objects.get(username='testUser'), created=timezone.now())
+    category.save()
+
+
