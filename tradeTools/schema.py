@@ -1,5 +1,5 @@
 import graphene
-import datetime
+from django.utils import timezone
 from graphene_django import DjangoObjectType
 from graphql_extensions.auth.decorators import login_required
 from .models import Product, Category, AuthUser
@@ -43,13 +43,14 @@ class CreateCategory(graphene.Mutation):
 
     def mutate(self, info, title):
         user_instance = AuthUser.objects.get(id=info.context.user.id)
-        category = Category(title=title, userid=user_instance, created=datetime.datetime.now())
+        current_time = timezone.now()
+        category = Category(title=title, userid=user_instance, created=current_time)
         category.save()
 
         return CreateCategory(category=category)
 
 
-class MyMutations(graphene.ObjectType):
+class CategoryMutation(graphene.ObjectType):
     create_category = CreateCategory.Field()
     update_category = UpdateCategory.Field()
 
@@ -86,7 +87,7 @@ class Query(graphene.ObjectType):
 
         return None
 
-    @login_required
+
     def resolve_users(self, info, **kwargs):
         return AuthUser.objects.all()
 
@@ -94,9 +95,9 @@ class Query(graphene.ObjectType):
     def resolve_products(self, info, **kwargs):
         return Product.objects.all().order_by('-productid')
 
-    @login_required
+
     def resolve_categories(self, info, **kwargs):
         return Category.objects.all()
 
 
-schema = graphene.Schema(query=Query, mutation=MyMutations)
+schema = graphene.Schema(query=Query, mutation=CategoryMutation)

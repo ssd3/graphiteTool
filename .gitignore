@@ -8,3 +8,7 @@ __pycache__/
 *.pot
 *.pyc
 local_settings.py
+.pytest_cache
+/.pytest_cache
+tradeTools/__pycache__
+tradeTools/__pycache__/

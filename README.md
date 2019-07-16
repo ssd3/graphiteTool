@@ -1,12 +1,4 @@
 # graphiteTool
-graphiteTool
-
-
-
-1. py manage.py shell
-2. from productApp.models import User, Product
-3. Product.objects.all()
-4. User.objects.all()
 
 # graphql
 1. run http://127.0.0.1:8000/graphql
@@ -19,6 +11,31 @@ query {
     productid
     title
     created
+  }
+}
+```
+
+# Mutation create
+
+```
+mutation MyFirstMutation{
+  createCategory(title:"NewMutationCategory"){
+    category{   // expected returning fields to see after create
+      title            
+      categoryid
+    }        
+  }
+}
+```
+
+# Mutation update
+
+```
+mutation MyFirstMutation{
+  updateCategory(categoryid:22, title:"UpdatedMutationCategory"){
+    category{
+      title      
+    }        
   }
 }
 ```
