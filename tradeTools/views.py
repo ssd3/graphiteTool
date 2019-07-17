@@ -14,10 +14,13 @@ def custom_login(request):
 
 
 def graphql_view(request):
+    return csrf_exempt(GraphQLView.as_view(graphiql=True))(request)
+    '''
     if request.user.is_superuser:
         return csrf_exempt(GraphQLView.as_view(graphiql=True))(request)
     else:
         return HttpResponse('404, not super user')
+    '''
 
 
 def index(request):

@@ -13,8 +13,6 @@ def initdata_users():
 
 
 def initdata_categories():
-    initdata_users()
-
     category = Category(title='Category1', userid=AuthUser.objects.get(username='testUser'), created=timezone.now())
     category.save()
 
@@ -25,3 +23,5 @@ def initdata_categories():
     category.save()
 
 
+def get_user(_id):
+    return AuthUser.objects.get(id=_id)

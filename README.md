@@ -16,9 +16,9 @@ query {
 ```
 
 # Mutation create
-
+@log in in admin panel before mutation(category tbl uses UserID)
 ```
-mutation MyFirstMutation{
+mutation Mutation{
   createCategory(title:"NewMutationCategory"){
     category{   // expected returning fields to see after create
       title            
@@ -28,10 +28,22 @@ mutation MyFirstMutation{
 }
 ```
 
+```
+mutation Mutation{
+  createProduct(title:"NewMutationProd", description:"MutProdDesc"){
+    product{   
+      title            
+      description
+    }        
+  }
+}
+```
+
+
 # Mutation update
 
 ```
-mutation MyFirstMutation{
+mutation Mutation{
   updateCategory(categoryid:22, title:"UpdatedMutationCategory"){
     category{
       title      
