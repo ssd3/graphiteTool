@@ -18,24 +18,34 @@ query {
 # Mutation create
 @log in in admin panel before mutation(category tbl uses UserID)
 ```
-mutation Mutation{
-  createCategory(title:"NewMutationCategory"){
-    category{   // expected returning fields to see after create
+mutation Mutation($categoryid: Int!, $title: String!, $description: String)
+{
+  result: createProduct(
+    categoryid: $categoryid
+    title: $title,
+    description: $description
+  ){
+    product{   
+      productid
       title            
-      categoryid
+      description
+      categoryid {
+        categoryid
+        title
+      }
+      userid {
+        id
+        username
+      }
     }        
   }
 }
 ```
-
+and Query Variables example
 ```
-mutation Mutation{
-  createProduct(title:"NewMutationProd", description:"MutProdDesc"){
-    product{   
-      title            
-      description
-    }        
-  }
+{
+  "categoryid": 1,
+  "title": "Product Title 555"
 }
 ```
 
@@ -43,11 +53,36 @@ mutation Mutation{
 # Mutation update
 
 ```
-mutation Mutation{
-  updateCategory(categoryid:22, title:"UpdatedMutationCategory"){
-    category{
-      title      
+mutation Mutation($productid: Int!, $categoryid: Int!, $title: String!, $description: String)
+{
+  result: updateProduct(
+    productid: $productid,
+    categoryid: $categoryid
+    title: $title,
+    description: $description
+  ){
+    product{   
+      productid
+      title            
+      description
+      categoryid {
+        categoryid
+        title
+      }
+      userid {
+        id
+        username
+      }
     }        
   }
+}
+```
+and Query Variables example
+```
+{
+  "productid": 28,
+  "categoryid": 1,
+  "title": "Product Title 777"
+  "description": "Product Title 777 description"
 }
 ```

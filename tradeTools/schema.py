@@ -60,17 +60,21 @@ class CreateCategory(graphene.Mutation):
 
 class CreateProduct(graphene.Mutation):
     class Arguments:
+        categoryid = graphene.Int()
         title = graphene.String()
         description = graphene.String()
 
     product = graphene.Field(ProductType)
 
-    def mutate(self, info, title, description):
+    def mutate(self, info, **kwargs):
         user_instance = AuthUser.objects.get(id=info.context.user.id)
         current_time = timezone.now()
-        category = Category.objects.get(categoryid=1)
-        product = Product(categoryid=category, title=title, description=description,
-                            userid=user_instance, created=current_time)
+        category = Category.objects.get(categoryid=kwargs.get("categoryid"))
+        product = Product(categoryid=category,
+                          title=kwargs.get("title"),
+                          description=kwargs.get("description", None),
+                          userid=user_instance,
+                          created=current_time)
         product.save()
         return CreateProduct(product=product)
 
@@ -78,15 +82,17 @@ class CreateProduct(graphene.Mutation):
 class UpdateProduct(graphene.Mutation):
     class Arguments:
         productid = graphene.Int()
+        categoryid = graphene.Int()
         title = graphene.String()
         description = graphene.String()
 
     product = graphene.Field(ProductType)
 
-    def mutate(self, info, productid, title, description):
-        product = Product.objects.get(productid=productid)
-        product.title = title
-        product.description = description
+    def mutate(self, info, **kwargs):
+        product = Product.objects.get(pk=kwargs.get("productid"))
+        product.categoryid = Category.objects.get(pk=kwargs.get("categoryid"))
+        product.title = kwargs.get("title")
+        product.description = kwargs.get("description", None)
         product.save()
         return UpdateProduct(product=product)
 
