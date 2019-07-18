@@ -1,6 +1,7 @@
 import graphene
 from django.utils import timezone
 from graphene_django import DjangoObjectType
+from graphene import relay
 from graphql_extensions.auth.decorators import login_required
 from .models import Product, Category, AuthUser, Status, Pricetype
 
@@ -13,6 +14,12 @@ class UserType(DjangoObjectType):
 class ProductType(DjangoObjectType):
     class Meta:
         model = Product
+        interface = (relay.Node, )
+
+
+class ProductConnection(relay.Connection):
+    class Meta:
+        node = ProductType
 
 
 class CategoryType(DjangoObjectType):
@@ -32,13 +39,13 @@ class PricetypeType(DjangoObjectType):
 
 class UpdateCategory(graphene.Mutation):
     class Arguments:
-        categoryid = graphene.Int()
-        title = graphene.String()
+        categoryid = graphene.Int(required=True)
+        title = graphene.String(required=True)
 
     category = graphene.Field(CategoryType)
 
     def mutate(self, info, categoryid, title):
-        category = Category.objects.get(categoryid=categoryid)
+        category = Category.objects.get(pk=categoryid)
         category.title = title
         category.save()
         return UpdateCategory(category=category)
@@ -46,30 +53,32 @@ class UpdateCategory(graphene.Mutation):
 
 class CreateCategory(graphene.Mutation):
     class Arguments:
-        title = graphene.String()
+        title = graphene.String(required=True)
 
     category = graphene.Field(CategoryType)
 
     def mutate(self, info, title):
-        user_instance = AuthUser.objects.get(id=info.context.user.id)
-        current_time = timezone.now()
-        category = Category(title=title, userid=user_instance, created=current_time)
+        user_instance = AuthUser.objects.get(pk=info.context.user.id)
+        current_time = timezone.utc()
+        category = Category(title=title,
+                            userid=user_instance,
+                            created=current_time)
         category.save()
         return CreateCategory(category=category)
 
 
 class CreateProduct(graphene.Mutation):
     class Arguments:
-        categoryid = graphene.Int()
-        title = graphene.String()
+        categoryid = graphene.Int(required=True)
+        title = graphene.String(required=True)
         description = graphene.String()
 
     product = graphene.Field(ProductType)
 
     def mutate(self, info, **kwargs):
-        user_instance = AuthUser.objects.get(id=info.context.user.id)
-        current_time = timezone.now()
-        category = Category.objects.get(categoryid=kwargs.get("categoryid"))
+        user_instance = AuthUser.objects.get(pk=info.context.user.id)
+        current_time = timezone.utc()
+        category = Category.objects.get(pk=kwargs.get("categoryid"))
         product = Product(categoryid=category,
                           title=kwargs.get("title"),
                           description=kwargs.get("description", None),
@@ -81,9 +90,9 @@ class CreateProduct(graphene.Mutation):
 
 class UpdateProduct(graphene.Mutation):
     class Arguments:
-        productid = graphene.Int()
-        categoryid = graphene.Int()
-        title = graphene.String()
+        productid = graphene.Int(required=True)
+        categoryid = graphene.Int(required=True)
+        title = graphene.String(required=True)
         description = graphene.String()
 
     product = graphene.Field(ProductType)
@@ -99,29 +108,32 @@ class UpdateProduct(graphene.Mutation):
 
 class CreateStatus(graphene.Mutation):
     class Arguments:
-        title = graphene.String()
-        value = graphene.String()
+        title = graphene.String(required=True)
+        value = graphene.String(required=True)
 
     status = graphene.Field(StatusType)
 
     def mutate(self, info, title, value):
-        user_instance = AuthUser.objects.get(id=info.context.user.id)
-        current_time = timezone.now()
-        status = Status(title=title, value=value, userid=user_instance, created=current_time)
+        user_instance = AuthUser.objects.get(pk=info.context.user.id)
+        current_time = timezone.utc()
+        status = Status(title=title,
+                        value=value,
+                        userid=user_instance,
+                        created=current_time)
         status.save()
         return CreateStatus(status=status)
 
 
 class UpdateStatus(graphene.Mutation):
     class Arguments:
-        statusid = graphene.Int()
-        title = graphene.String()
-        value = graphene.String()
+        statusid = graphene.Int(required=True)
+        title = graphene.String(required=True)
+        value = graphene.String(required=True)
 
     status = graphene.Field(StatusType)
 
     def mutate(self, info, statusid, title, value):
-        status = Status.objects.get(statusid=statusid)
+        status = Status.objects.get(pk=statusid)
         status.title = title
         status.value = value
         status.save()
@@ -130,17 +142,20 @@ class UpdateStatus(graphene.Mutation):
 
 class CreatePriceType(graphene.Mutation):
     class Arguments:
-        title = graphene.String()
+        title = graphene.String(required=True)
         description = graphene.String()
-        ratio = graphene.Int()
+        ratio = graphene.Int(required=True)
 
     pricetype = graphene.Field(PricetypeType)
 
     def mutate(self, info, title, description, ratio):
-        user_instance = AuthUser.objects.get(id=info.context.user.id)
-        current_time = timezone.now()
-        pricetype = Pricetype(title=title, description=description, ratio=ratio,
-                                userid=user_instance, created=current_time)
+        user_instance = AuthUser.objects.get(pk=info.context.user.id)
+        current_time = timezone.utc()
+        pricetype = Pricetype(title=title,
+                              description=description,
+                              ratio=ratio,
+                              userid=user_instance,
+                              created=current_time)
         pricetype.save()
         return CreatePriceType(pricetype=pricetype)
 
@@ -157,23 +172,31 @@ class Mutation(graphene.ObjectType):
 
 class Query(graphene.ObjectType):
     users = graphene.List(UserType)
+
     user = graphene.Field(UserType,
                           userid=graphene.Int(),
                           username=graphene.String(),
                           email=graphene.String(),
                           description=graphene.String())
-    products = graphene.List(ProductType)
+
+    products = relay.ConnectionField(ProductConnection)
+
     product = graphene.List(ProductType,
-                             productid=graphene.Int(),
-                             title=graphene.String(),
-                             userid=graphene.Int(),
-                             page=graphene.Int())
+                            productid=graphene.Int(),
+                            title=graphene.String(),
+                            userid=graphene.Int(),
+                            page=graphene.Int())
+
     categories = graphene.List(CategoryType)
+
     statuses = graphene.List(StatusType)
+
     status = graphene.Field(StatusType,
                             title=graphene.String(),
                             statusid=graphene.Int())
+
     pricetypes = graphene.List(PricetypeType)
+
     pricetype = graphene.Field(PricetypeType,
                                pricetypeid=graphene.Int(),
                                title=graphene.String())
@@ -201,7 +224,7 @@ class Query(graphene.ObjectType):
     def resolve_users(self, info, **kwargs):
         return AuthUser.objects.all()
 
-    def resolve_products(self, info, **kwargs ):
+    def resolve_products(root, info, **kwargs):
         return Product.objects.all().order_by('productid')
 
     def resolve_product(self, info, **kwargs):

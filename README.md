@@ -86,3 +86,26 @@ and Query Variables example
   "description": "Product Title 777 description"
 }
 ```
+
+# Products relay
+
+```
+{
+    products (first: 2) {
+        edges {
+        	cursor
+        	node {
+            	        productid
+            	        title
+        	    }
+        }
+        pageInfo {
+        	startCursor
+        	endCursor
+        	hasNextPage
+        	hasPreviousPage
+        }
+    }
+}
+
+```
