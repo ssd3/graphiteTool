@@ -3,7 +3,7 @@ from django.utils import timezone
 from graphene_django import DjangoObjectType
 from graphene import relay
 from graphql_extensions.auth.decorators import login_required
-from .models import Product, Category, AuthUser, Status, Pricetype
+from .models import Product, Category, AuthUser, Status, Pricetype, Warehouse
 
 
 class UserType(DjangoObjectType):
@@ -37,6 +37,11 @@ class PricetypeType(DjangoObjectType):
         model = Pricetype
 
 
+class WarehouseType(DjangoObjectType):
+    class Meta:
+        model = Warehouse
+
+
 class UpdateCategory(graphene.Mutation):
     class Arguments:
         categoryid = graphene.Int(required=True)
@@ -59,7 +64,7 @@ class CreateCategory(graphene.Mutation):
 
     def mutate(self, info, title):
         user_instance = AuthUser.objects.get(pk=info.context.user.id)
-        current_time = timezone.utc()
+        current_time = timezone.now()
         category = Category(title=title,
                             userid=user_instance,
                             created=current_time)
@@ -77,7 +82,7 @@ class CreateProduct(graphene.Mutation):
 
     def mutate(self, info, **kwargs):
         user_instance = AuthUser.objects.get(pk=info.context.user.id)
-        current_time = timezone.utc()
+        current_time = timezone.now()
         category = Category.objects.get(pk=kwargs.get("categoryid"))
         product = Product(categoryid=category,
                           title=kwargs.get("title"),
@@ -115,7 +120,7 @@ class CreateStatus(graphene.Mutation):
 
     def mutate(self, info, title, value):
         user_instance = AuthUser.objects.get(pk=info.context.user.id)
-        current_time = timezone.utc()
+        current_time = timezone.now()
         status = Status(title=title,
                         value=value,
                         userid=user_instance,
@@ -150,7 +155,7 @@ class CreatePriceType(graphene.Mutation):
 
     def mutate(self, info, title, description, ratio):
         user_instance = AuthUser.objects.get(pk=info.context.user.id)
-        current_time = timezone.utc()
+        current_time = timezone.now()
         pricetype = Pricetype(title=title,
                               description=description,
                               ratio=ratio,
@@ -158,6 +163,53 @@ class CreatePriceType(graphene.Mutation):
                               created=current_time)
         pricetype.save()
         return CreatePriceType(pricetype=pricetype)
+
+
+class CreateWarehouse(graphene.Mutation):
+    class Arguments:
+        title = graphene.String(required=True)
+        description = graphene.String()
+        active = graphene.Boolean(required=True)
+        in_field = graphene.Boolean(required=True)
+        out = graphene.Boolean(required=True)
+
+    warehouse = graphene.Field(WarehouseType)
+
+    def mutate(self, info, **kwargs):
+        user_instance = AuthUser.objects.get(pk=info.context.user.id)
+        current_time = timezone.now()
+
+        warehouse = Warehouse(title=kwargs.get("title"),
+                              description=kwargs.get("description", None),
+                              active=kwargs.get("active"),
+                              userid=user_instance,
+                              created=current_time,
+                              in_field=kwargs.get("in_field"),
+                              out=kwargs.get("out"))
+        warehouse.save()
+        return CreateWarehouse(warehouse=warehouse)
+
+
+class UpdateWarehouse(graphene.Mutation):
+    class Arguments:
+        warehouseid = graphene.Int(required=True)
+        title = graphene.String(required=True)
+        description = graphene.String()
+        active = graphene.Boolean(required=True)
+        in_field = graphene.Boolean(required=True)
+        out = graphene.Boolean(required=True)
+
+    warehouse = graphene.Field(WarehouseType)
+
+    def mutate(self, info, **kwargs):
+        warehouse = Warehouse.objects.get(pk=kwargs.get("warehouseid"))
+        warehouse.title = kwargs.get("title")
+        warehouse.description = kwargs.get("description", None)
+        warehouse.active = kwargs.get("active")
+        warehouse.in_field = kwargs.get("in_field")
+        warehouse.out = kwargs.get("out")
+        warehouse.save()
+        return UpdateWarehouse(warehouse=warehouse)
 
 
 class Mutation(graphene.ObjectType):
@@ -168,11 +220,12 @@ class Mutation(graphene.ObjectType):
     create_status = CreateStatus.Field()
     update_status = UpdateStatus.Field()
     create_pricetype = CreatePriceType.Field()
+    create_warehouse = CreateWarehouse.Field()
+    update_warehouse = UpdateWarehouse.Field()
 
 
 class Query(graphene.ObjectType):
     users = graphene.List(UserType)
-
     user = graphene.Field(UserType,
                           userid=graphene.Int(),
                           username=graphene.String(),
@@ -180,7 +233,6 @@ class Query(graphene.ObjectType):
                           description=graphene.String())
 
     products = relay.ConnectionField(ProductConnection)
-
     product = graphene.List(ProductType,
                             productid=graphene.Int(),
                             title=graphene.String(),
@@ -190,16 +242,22 @@ class Query(graphene.ObjectType):
     categories = graphene.List(CategoryType)
 
     statuses = graphene.List(StatusType)
-
     status = graphene.Field(StatusType,
                             title=graphene.String(),
                             statusid=graphene.Int())
 
     pricetypes = graphene.List(PricetypeType)
-
     pricetype = graphene.Field(PricetypeType,
                                pricetypeid=graphene.Int(),
                                title=graphene.String())
+
+    warehouses = graphene.List(WarehouseType)
+    warehouse = graphene.List(WarehouseType,
+                              warehouseid=graphene.Int(),
+                              title=graphene.String(),
+                              active=graphene.Boolean(),
+                              in_field=graphene.Boolean(),
+                              out=graphene.Boolean())
 
     def resolve_user(self, info, **kwargs):
         userid = kwargs.get('userid')
@@ -280,6 +338,33 @@ class Query(graphene.ObjectType):
 
         if title is not None:
             return Pricetype.objects.get(title=title)
+
+    def resolve_warehouses(self, info, **kwargs):
+        return Warehouse.objects.all()
+
+    def resolve_warehouse(self, info, **kwargs):
+        warehouseid = kwargs.get('warehouseid')
+        title = kwargs.get('title')
+        active = kwargs.get('active')
+        in_field = kwargs.get('in_field')
+        out = kwargs.get('out')
+
+        if warehouseid is not None:
+            return Warehouse.objects.filter(pk=warehouseid)
+
+        if title is not None:
+            return Warehouse.objects.filter(title=title)
+
+        if active is not None:
+            return Warehouse.objects.filter(active=active)
+
+        if in_field is not None:
+            return Warehouse.objects.filter(in_field=in_field)
+
+        if out is not None:
+            return Warehouse.objects.filter(out=out)
+
+        return None
 
 
 schema = graphene.Schema(query=Query, mutation=Mutation)
