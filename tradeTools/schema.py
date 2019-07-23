@@ -40,6 +40,12 @@ class PricetypeType(DjangoObjectType):
 class WarehouseType(DjangoObjectType):
     class Meta:
         model = Warehouse
+        interface = (relay.Node, )
+
+
+class WarehouseConnection(relay.Connection):
+    class Meta:
+        node = WarehouseType
 
 
 class UpdateCategory(graphene.Mutation):
@@ -251,7 +257,7 @@ class Query(graphene.ObjectType):
                                pricetypeid=graphene.Int(),
                                title=graphene.String())
 
-    warehouses = graphene.List(WarehouseType)
+    warehouses = relay.ConnectionField(WarehouseConnection)
     warehouse = graphene.List(WarehouseType,
                               warehouseid=graphene.Int(),
                               title=graphene.String(),
