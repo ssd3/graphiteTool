@@ -314,14 +314,14 @@ class Query(graphene.ObjectType):
 
 
 class RootQuery(Query,
-                # ProductQuery,
+                ProductQuery,
                 DebitQuery,
                 graphene.ObjectType):
     pass
 
 
 class RootMutation(Mutation,
-                   # ProductMutation,
+                   ProductMutation,
                    DebitMutation,
                    graphene.ObjectType):
     pass
