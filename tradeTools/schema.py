@@ -3,23 +3,14 @@ from django.utils import timezone
 from graphene_django import DjangoObjectType
 from graphene import relay
 from graphql_extensions.auth.decorators import login_required
-from .models import Product, Category, AuthUser, Status, Pricetype, Warehouse
+from .models import Category, AuthUser, Status, Pricetype, Warehouse, Discount
+from tradeTools.schemes.product import ProductMutation, ProductQuery
+from tradeTools.schemes.debit import DebitMutation, DebitQuery
 
 
 class UserType(DjangoObjectType):
     class Meta:
         model = AuthUser
-
-
-class ProductType(DjangoObjectType):
-    class Meta:
-        model = Product
-        interface = (relay.Node, )
-
-
-class ProductConnection(relay.Connection):
-    class Meta:
-        node = ProductType
 
 
 class CategoryType(DjangoObjectType):
@@ -46,6 +37,11 @@ class WarehouseType(DjangoObjectType):
 class WarehouseConnection(relay.Connection):
     class Meta:
         node = WarehouseType
+
+
+class DiscountType(DjangoObjectType):
+    class Meta:
+        model = Discount
 
 
 class UpdateCategory(graphene.Mutation):
@@ -76,45 +72,6 @@ class CreateCategory(graphene.Mutation):
                             created=current_time)
         category.save()
         return CreateCategory(category=category)
-
-
-class CreateProduct(graphene.Mutation):
-    class Arguments:
-        categoryid = graphene.Int(required=True)
-        title = graphene.String(required=True)
-        description = graphene.String()
-
-    product = graphene.Field(ProductType)
-
-    def mutate(self, info, **kwargs):
-        user_instance = AuthUser.objects.get(pk=info.context.user.id)
-        current_time = timezone.now()
-        category = Category.objects.get(pk=kwargs.get("categoryid"))
-        product = Product(categoryid=category,
-                          title=kwargs.get("title"),
-                          description=kwargs.get("description", None),
-                          userid=user_instance,
-                          created=current_time)
-        product.save()
-        return CreateProduct(product=product)
-
-
-class UpdateProduct(graphene.Mutation):
-    class Arguments:
-        productid = graphene.Int(required=True)
-        categoryid = graphene.Int(required=True)
-        title = graphene.String(required=True)
-        description = graphene.String()
-
-    product = graphene.Field(ProductType)
-
-    def mutate(self, info, **kwargs):
-        product = Product.objects.get(pk=kwargs.get("productid"))
-        product.categoryid = Category.objects.get(pk=kwargs.get("categoryid"))
-        product.title = kwargs.get("title")
-        product.description = kwargs.get("description", None)
-        product.save()
-        return UpdateProduct(product=product)
 
 
 class CreateStatus(graphene.Mutation):
@@ -221,8 +178,6 @@ class UpdateWarehouse(graphene.Mutation):
 class Mutation(graphene.ObjectType):
     create_category = CreateCategory.Field()
     update_category = UpdateCategory.Field()
-    create_product = CreateProduct.Field()
-    update_product = UpdateProduct.Field()
     create_status = CreateStatus.Field()
     update_status = UpdateStatus.Field()
     create_pricetype = CreatePriceType.Field()
@@ -237,13 +192,6 @@ class Query(graphene.ObjectType):
                           username=graphene.String(),
                           email=graphene.String(),
                           description=graphene.String())
-
-    products = relay.ConnectionField(ProductConnection)
-    product = graphene.List(ProductType,
-                            productid=graphene.Int(),
-                            title=graphene.String(),
-                            userid=graphene.Int(),
-                            page=graphene.Int())
 
     categories = graphene.List(CategoryType)
 
@@ -264,6 +212,13 @@ class Query(graphene.ObjectType):
                               active=graphene.Boolean(),
                               in_field=graphene.Boolean(),
                               out=graphene.Boolean())
+
+    discounts = graphene.List(DiscountType)
+    discount = graphene.Field(DiscountType,
+                              discountid=graphene.Int(),
+                              title=graphene.String(),
+                              value=graphene.Decimal(),
+                              units=graphene.String())
 
     def resolve_user(self, info, **kwargs):
         userid = kwargs.get('userid')
@@ -287,32 +242,6 @@ class Query(graphene.ObjectType):
 
     def resolve_users(self, info, **kwargs):
         return AuthUser.objects.all()
-
-    def resolve_products(root, info, **kwargs):
-        return Product.objects.all().order_by('productid')
-
-    def resolve_product(self, info, **kwargs):
-        productid = kwargs.get('productid')
-        title = kwargs.get('title')
-        userid = kwargs.get('userid')
-        page = kwargs.get('page')
-
-        if productid is not None:
-            return Product.objects.filter(productid=productid)
-
-        if title is not None:
-            return Product.objects.filter(title=title)
-
-        if userid is not None:
-            return Product.objects.filter(userid=userid)
-
-        if page is not None:
-            products_per_page = 5
-            products_to = products_per_page * page
-            products_from = products_to - products_per_page
-            return Product.objects.all()[products_from:products_to]
-
-        return None
 
     def resolve_categories(self, info, **kwargs):
         return Category.objects.all()
@@ -372,5 +301,30 @@ class Query(graphene.ObjectType):
 
         return None
 
+    def resolve_discounts(self, info, **kwargs):
+        return Discount.objects.all()
 
-schema = graphene.Schema(query=Query, mutation=Mutation)
+    def resolve_discount(self, info, **kwargs):
+        discountid = kwargs.get('discountid')
+
+        if discountid is not None:
+            return Discount.objects.filter(pk=discountid)
+
+        return None
+
+
+class RootQuery(Query,
+                # ProductQuery,
+                DebitQuery,
+                graphene.ObjectType):
+    pass
+
+
+class RootMutation(Mutation,
+                   # ProductMutation,
+                   DebitMutation,
+                   graphene.ObjectType):
+    pass
+
+
+schema = graphene.Schema(query=RootQuery, mutation=RootMutation)
