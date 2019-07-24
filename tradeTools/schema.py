@@ -3,11 +3,12 @@ from django.utils import timezone
 from graphene_django import DjangoObjectType
 from graphene import relay
 from graphql_extensions.auth.decorators import login_required
-from .models import Category, AuthUser, Status, Pricetype, Warehouse, Discount
+from .models import Category, AuthUser, Status, Pricetype, Discount
 from tradeTools.schemes.product import ProductMutation, ProductQuery
 from tradeTools.schemes.debit import DebitMutation, DebitQuery
 from tradeTools.schemes.productDetails import ProductDetailsMutation, ProductDetailsQuery
 from tradeTools.schemes.warehouse import WarehouseQuery, WarehouseMutation
+from tradeTools.schemes.productComment import ProductCommentMutation, ProductCommentQuery
 
 
 class UserType(DjangoObjectType):
@@ -223,6 +224,7 @@ class Query(graphene.ObjectType):
 class RootQuery(Query,
                 ProductQuery,
                 ProductDetailsQuery,
+                ProductCommentQuery,
                 DebitQuery,
                 WarehouseQuery,
                 graphene.ObjectType):
@@ -232,6 +234,7 @@ class RootQuery(Query,
 class RootMutation(Mutation,
                    ProductMutation,
                    ProductDetailsMutation,
+                   ProductCommentMutation,
                    DebitMutation,
                    WarehouseMutation,
                    graphene.ObjectType):
