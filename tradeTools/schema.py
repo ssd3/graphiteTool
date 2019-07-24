@@ -7,6 +7,7 @@ from .models import Category, AuthUser, Status, Pricetype, Warehouse, Discount
 from tradeTools.schemes.product import ProductMutation, ProductQuery
 from tradeTools.schemes.debit import DebitMutation, DebitQuery
 from tradeTools.schemes.productDetails import ProductDetailsMutation, ProductDetailsQuery
+from tradeTools.schemes.productComment import ProductCommentMutation, ProductCommentQuery
 
 
 class UserType(DjangoObjectType):
@@ -317,6 +318,7 @@ class Query(graphene.ObjectType):
 class RootQuery(Query,
                 ProductQuery,
                 ProductDetailsQuery,
+                ProductCommentQuery,
                 DebitQuery,
                 graphene.ObjectType):
     pass
@@ -325,6 +327,7 @@ class RootQuery(Query,
 class RootMutation(Mutation,
                    ProductMutation,
                    ProductDetailsMutation,
+                   ProductCommentMutation,
                    DebitMutation,
                    graphene.ObjectType):
     pass
