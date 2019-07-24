@@ -6,6 +6,7 @@ from graphql_extensions.auth.decorators import login_required
 from .models import Category, AuthUser, Status, Pricetype, Warehouse, Discount
 from tradeTools.schemes.product import ProductMutation, ProductQuery
 from tradeTools.schemes.debit import DebitMutation, DebitQuery
+from tradeTools.schemes.productDetails import ProductDetailsMutation, ProductDetailsQuery
 
 
 class UserType(DjangoObjectType):
@@ -315,6 +316,7 @@ class Query(graphene.ObjectType):
 
 class RootQuery(Query,
                 ProductQuery,
+                ProductDetailsQuery,
                 DebitQuery,
                 graphene.ObjectType):
     pass
@@ -322,6 +324,7 @@ class RootQuery(Query,
 
 class RootMutation(Mutation,
                    ProductMutation,
+                   ProductDetailsMutation,
                    DebitMutation,
                    graphene.ObjectType):
     pass
