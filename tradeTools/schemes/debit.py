@@ -146,9 +146,14 @@ class DebitQuery(graphene.ObjectType):
         kwargs.pop('last', None)
         kwargs.pop('first', None)
 
-        kwargs.pop('qty_expr', None)  # filter expr here
-        kwargs.pop('price_expr', None)  # filter expr here
-        kwargs.pop('created_expr', None)  # filter expr here
+        # filter expressions here such as gt gte lt lte etc
+        qty_expr = kwargs.get('qty_expr', None)  # additional to qty field (qty gt 2.0)
+        price_expr = kwargs.get('price_expr', None)
+        created_expr = kwargs.get('created_expr', None)
+
+        kwargs.pop('qty_expr', None)
+        kwargs.pop('price_expr', None)
+        kwargs.pop('created_expr', None)
 
         if len(kwargs) > 0:
             return Debit.objects.filter(**kwargs)
