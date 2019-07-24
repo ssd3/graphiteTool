@@ -82,8 +82,40 @@ class CreateDebit(graphene.Mutation):
         return CreateDebit(debit=debit)
 
 
+class UpdateDebit(graphene.Mutation):
+    class Arguments:
+        debitid = graphene.Int(required=True)
+        warehouseid = graphene.Int(required=True)
+        productid = graphene.Int(required=True)
+        qty = graphene.Decimal(required=True)
+        price = graphene.Decimal(required=True)
+        pricetypeid = graphene.Int(required=True)
+        discountid = graphene.Int(required=True)
+        tracknumber = graphene.String(required=True)
+        statusid = graphene.Int(required=True)
+        notes = graphene.String()
+
+    debit = graphene.Field(DebitType)
+
+    def mutate(self, info, **kwargs):
+        debit = Debit.objects.get(pk=kwargs.get("debitid"))
+        debit.warehouseid = Warehouse.objects.get(pk=kwargs.get("warehouseid"))
+        debit.productid = Product.objects.get(pk=kwargs.get("productid"))
+        debit.pricetypeid = Pricetype.objects.get(pk=kwargs.get("pricetypeid"))
+        debit.discountid = Discount.objects.get(pk=kwargs.get("discountid"))
+        debit.statusid = Status.objects.get(pk=kwargs.get("statusid"))
+        debit.qty = kwargs.get("qty")
+        debit.price = kwargs.get("price")
+        debit.tracknumber = kwargs.get("tracknumber")
+        debit.notes = kwargs.get("notes", None)
+
+        debit.save()
+        return UpdateDebit(debit=debit)
+
+
 class DebitMutation(graphene.ObjectType):
     create_debit = CreateDebit.Field()
+    update_debit = UpdateDebit.Field()
 
 
 class DebitQuery(graphene.ObjectType):
