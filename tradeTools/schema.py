@@ -7,6 +7,7 @@ from .models import Category, AuthUser, Status, Pricetype, Warehouse, Discount
 from tradeTools.schemes.product import ProductMutation, ProductQuery
 from tradeTools.schemes.debit import DebitMutation, DebitQuery
 from tradeTools.schemes.productDetails import ProductDetailsMutation, ProductDetailsQuery
+from tradeTools.schemes.warehouse import WarehouseQuery, WarehouseMutation
 
 
 class UserType(DjangoObjectType):
@@ -27,17 +28,6 @@ class StatusType(DjangoObjectType):
 class PricetypeType(DjangoObjectType):
     class Meta:
         model = Pricetype
-
-
-class WarehouseType(DjangoObjectType):
-    class Meta:
-        model = Warehouse
-        interface = (relay.Node, )
-
-
-class WarehouseConnection(relay.Connection):
-    class Meta:
-        node = WarehouseType
 
 
 class DiscountType(DjangoObjectType):
@@ -129,61 +119,12 @@ class CreatePriceType(graphene.Mutation):
         return CreatePriceType(pricetype=pricetype)
 
 
-class CreateWarehouse(graphene.Mutation):
-    class Arguments:
-        title = graphene.String(required=True)
-        description = graphene.String()
-        active = graphene.Boolean(required=True)
-        in_field = graphene.Boolean(required=True)
-        out = graphene.Boolean(required=True)
-
-    warehouse = graphene.Field(WarehouseType)
-
-    def mutate(self, info, **kwargs):
-        user_instance = AuthUser.objects.get(pk=info.context.user.id)
-        current_time = timezone.now()
-
-        warehouse = Warehouse(title=kwargs.get("title"),
-                              description=kwargs.get("description", None),
-                              active=kwargs.get("active"),
-                              userid=user_instance,
-                              created=current_time,
-                              in_field=kwargs.get("in_field"),
-                              out=kwargs.get("out"))
-        warehouse.save()
-        return CreateWarehouse(warehouse=warehouse)
-
-
-class UpdateWarehouse(graphene.Mutation):
-    class Arguments:
-        warehouseid = graphene.Int(required=True)
-        title = graphene.String(required=True)
-        description = graphene.String()
-        active = graphene.Boolean(required=True)
-        in_field = graphene.Boolean(required=True)
-        out = graphene.Boolean(required=True)
-
-    warehouse = graphene.Field(WarehouseType)
-
-    def mutate(self, info, **kwargs):
-        warehouse = Warehouse.objects.get(pk=kwargs.get("warehouseid"))
-        warehouse.title = kwargs.get("title")
-        warehouse.description = kwargs.get("description", None)
-        warehouse.active = kwargs.get("active")
-        warehouse.in_field = kwargs.get("in_field")
-        warehouse.out = kwargs.get("out")
-        warehouse.save()
-        return UpdateWarehouse(warehouse=warehouse)
-
-
 class Mutation(graphene.ObjectType):
     create_category = CreateCategory.Field()
     update_category = UpdateCategory.Field()
     create_status = CreateStatus.Field()
     update_status = UpdateStatus.Field()
     create_pricetype = CreatePriceType.Field()
-    create_warehouse = CreateWarehouse.Field()
-    update_warehouse = UpdateWarehouse.Field()
 
 
 class Query(graphene.ObjectType):
@@ -205,14 +146,6 @@ class Query(graphene.ObjectType):
     pricetype = graphene.Field(PricetypeType,
                                pricetypeid=graphene.Int(),
                                title=graphene.String())
-
-    warehouses = relay.ConnectionField(WarehouseConnection)
-    warehouse = graphene.List(WarehouseType,
-                              warehouseid=graphene.Int(),
-                              title=graphene.String(),
-                              active=graphene.Boolean(),
-                              in_field=graphene.Boolean(),
-                              out=graphene.Boolean())
 
     discounts = graphene.List(DiscountType)
     discount = graphene.Field(DiscountType,
@@ -275,33 +208,6 @@ class Query(graphene.ObjectType):
         if title is not None:
             return Pricetype.objects.get(title=title)
 
-    def resolve_warehouses(self, info, **kwargs):
-        return Warehouse.objects.all()
-
-    def resolve_warehouse(self, info, **kwargs):
-        warehouseid = kwargs.get('warehouseid')
-        title = kwargs.get('title')
-        active = kwargs.get('active')
-        in_field = kwargs.get('in_field')
-        out = kwargs.get('out')
-
-        if warehouseid is not None:
-            return Warehouse.objects.filter(pk=warehouseid)
-
-        if title is not None:
-            return Warehouse.objects.filter(title=title)
-
-        if active is not None:
-            return Warehouse.objects.filter(active=active)
-
-        if in_field is not None:
-            return Warehouse.objects.filter(in_field=in_field)
-
-        if out is not None:
-            return Warehouse.objects.filter(out=out)
-
-        return None
-
     def resolve_discounts(self, info, **kwargs):
         return Discount.objects.all()
 
@@ -318,6 +224,7 @@ class RootQuery(Query,
                 ProductQuery,
                 ProductDetailsQuery,
                 DebitQuery,
+                WarehouseQuery,
                 graphene.ObjectType):
     pass
 
@@ -326,6 +233,7 @@ class RootMutation(Mutation,
                    ProductMutation,
                    ProductDetailsMutation,
                    DebitMutation,
+                   WarehouseMutation,
                    graphene.ObjectType):
     pass
 
