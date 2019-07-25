@@ -1,7 +1,6 @@
 import graphene
 from graphene_django import DjangoObjectType
 from graphene import relay
-from tradeTools.models import *
 from tradeTools.libs.common_db import *
 
 

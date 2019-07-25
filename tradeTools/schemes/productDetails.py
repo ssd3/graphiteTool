@@ -1,6 +1,5 @@
 import graphene
 from graphene_django.types import DjangoObjectType
-from tradeTools.models import *
 from tradeTools.libs.common_db import *
 
 
