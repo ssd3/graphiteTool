@@ -1,7 +1,7 @@
 import graphene
 from graphene_django.types import DjangoObjectType
-from django.utils import timezone
 from tradeTools.models import *
+from tradeTools.libs.common_db import *
 
 
 class ProductDetailsType(DjangoObjectType):
@@ -46,17 +46,7 @@ class CreateProductDetails(graphene.Mutation):
     productdetails = graphene.Field(ProductDetailsType)
 
     def mutate(self, info, **kwargs):
-        productdetails = Productdetails(productid=Product.objects.get(pk=kwargs.get("productid")),
-                                        model=kwargs.get("model", None),
-                                        url=kwargs.get("url", None),
-                                        serialno=kwargs.get("serialno", None),
-                                        weight=kwargs.get("weight", 0.0),
-                                        height=kwargs.get("height", 0.0),
-                                        width=kwargs.get("width", 0.0),
-                                        length=kwargs.get("length", 0.0),
-                                        userid=AuthUser.objects.get(pk=info.context.user.id),
-                                        created=timezone.now())
-        productdetails.save()
+        productdetails = create_productdetails(info, kwargs)
         return CreateProductDetails(productdetails=productdetails)
 
 
@@ -75,17 +65,7 @@ class UpdateProductDetails(graphene.Mutation):
     productdetails = graphene.Field(ProductDetailsType)
 
     def mutate(self, info, **kwargs):
-        productdetails = Productdetails.objects.get(pk=kwargs.get("productdetailsid"))
-        productdetails.productid = Product.objects.get(pk=kwargs.get("productid"))
-        productdetails.model = kwargs.get("model", None)
-        productdetails.url = kwargs.get("url", None)
-        productdetails.serialno = kwargs.get("serialno", None)
-        productdetails.weight = kwargs.get("weight", 0.0)
-        productdetails.height = kwargs.get("height", 0.0)
-        productdetails.width = kwargs.get("width", 0.0)
-        productdetails.length = kwargs.get("length", 0.0)
-
-        productdetails.save()
+        productdetails = update_productdetails(kwargs)
         return UpdateProductDetails(productdetails=productdetails)
 
 

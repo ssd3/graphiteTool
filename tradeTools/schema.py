@@ -9,6 +9,7 @@ from tradeTools.schemes.debit import DebitMutation, DebitQuery
 from tradeTools.schemes.productDetails import ProductDetailsMutation, ProductDetailsQuery
 from tradeTools.schemes.warehouse import WarehouseQuery, WarehouseMutation
 from tradeTools.schemes.productComment import ProductCommentMutation, ProductCommentQuery
+from tradeTools.schemes.debitComplex import DebitComplexMutation
 
 
 class UserType(DjangoObjectType):
@@ -237,6 +238,7 @@ class RootMutation(Mutation,
                    ProductCommentMutation,
                    DebitMutation,
                    WarehouseMutation,
+                   DebitComplexMutation,
                    graphene.ObjectType):
     pass
 

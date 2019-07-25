@@ -1,7 +1,6 @@
 import graphene
 from graphene_django.types import DjangoObjectType
-from django.utils import timezone
-from tradeTools.models import *
+from tradeTools.libs.common_db import *
 
 
 class ProductCommentType(DjangoObjectType):
@@ -40,11 +39,7 @@ class CreateProductComment(graphene.Mutation):
     productcomment = graphene.Field(ProductCommentType)
 
     def mutate(self, info, **kwargs):
-        productcomment = Productcomment(productid=Product.objects.get(pk=kwargs.get("productid")),
-                                        comment=kwargs.get("comment"),
-                                        userid=AuthUser.objects.get(pk=info.context.user.id),
-                                        created=timezone.now())
-        productcomment.save()
+        productcomment = create_productcomment(info, kwargs)
         return CreateProductComment(productcomment=productcomment)
 
 
@@ -56,10 +51,7 @@ class UpdateProductComment(graphene.Mutation):
     productcomment = graphene.Field(ProductCommentType)
 
     def mutate(self, info, **kwargs):
-        productcomment = Productcomment.objects.get(pk=kwargs.get("productcommentid"))
-        productcomment.comment = kwargs.get("comment")
-
-        productcomment.save()
+        productcomment = update_productcomment(kwargs)
         return UpdateProductComment(productcomment=productcomment)
 
 

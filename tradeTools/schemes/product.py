@@ -1,8 +1,8 @@
 import graphene
-from django.utils import timezone
 from graphene_django import DjangoObjectType
 from graphene import relay
 from tradeTools.models import *
+from tradeTools.libs.common_db import *
 
 
 class ProductType(DjangoObjectType):
@@ -24,16 +24,9 @@ class CreateProduct(graphene.Mutation):
 
     product = graphene.Field(ProductType)
 
+    @staticmethod
     def mutate(self, info, **kwargs):
-        user_instance = AuthUser.objects.get(pk=info.context.user.id)
-        current_time = timezone.now()
-        category = Category.objects.get(pk=kwargs.get("categoryid"))
-        product = Product(categoryid=category,
-                          title=kwargs.get("title"),
-                          description=kwargs.get("description", None),
-                          userid=user_instance,
-                          created=current_time)
-        product.save()
+        product = create_product(info, kwargs)
         return CreateProduct(product=product)
 
 
@@ -47,11 +40,7 @@ class UpdateProduct(graphene.Mutation):
     product = graphene.Field(ProductType)
 
     def mutate(self, info, **kwargs):
-        product = Product.objects.get(pk=kwargs.get("productid"))
-        product.categoryid = Category.objects.get(pk=kwargs.get("categoryid"))
-        product.title = kwargs.get("title")
-        product.description = kwargs.get("description", None)
-        product.save()
+        product = update_product(kwargs)
         return UpdateProduct(product=product)
 
 

@@ -71,8 +71,8 @@ class WarehouseMutation(graphene.ObjectType):
 
 
 class WarehouseQuery(graphene.ObjectType):
-    warehouses = DjangoFilterConnectionField(WarehouseType)
-    #warehouses = relay.ConnectionField(WarehouseConnection)
+    # warehouses = DjangoFilterConnectionField(WarehouseType)
+    warehouses = relay.ConnectionField(WarehouseConnection)
     warehouse = graphene.List(WarehouseType,
                               warehouseid=graphene.Int(),
                               title=graphene.String(),

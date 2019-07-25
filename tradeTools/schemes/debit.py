@@ -1,8 +1,8 @@
 import graphene
-from django.utils import timezone
 from graphene_django import DjangoObjectType
 from graphene import relay
 from tradeTools.models import *
+from tradeTools.libs.common_db import *
 
 '''
 # django-filters expr
@@ -58,27 +58,7 @@ class CreateDebit(graphene.Mutation):
     debit = graphene.Field(DebitType)
 
     def mutate(self, info, **kwargs):
-        warehouse = Warehouse.objects.get(pk=kwargs.get("warehouseid"))
-        product = Product.objects.get(pk=kwargs.get("productid"))
-        pricetype = Pricetype.objects.get(pk=kwargs.get("pricetypeid"))
-        discount = Discount.objects.get(pk=kwargs.get("discountid"))
-        status = Status.objects.get(pk=kwargs.get("statusid"))
-        user = AuthUser.objects.get(pk=info.context.user.id)
-        created = timezone.now()
-
-        debit = Debit(warehouseid=warehouse,
-                      productid=product,
-                      qty=kwargs.get("qty", 0.00),
-                      price=kwargs.get("price", 0.00),
-                      pricetypeid=pricetype,
-                      discountid=discount,
-                      tracknumber=kwargs.get("tracknumber"),
-                      statusid=status,
-                      notes=kwargs.get("notes", None),
-                      userid=user,
-                      created=created)
-
-        debit.save()
+        debit = create_debit(info, kwargs)
         return CreateDebit(debit=debit)
 
 
@@ -98,18 +78,7 @@ class UpdateDebit(graphene.Mutation):
     debit = graphene.Field(DebitType)
 
     def mutate(self, info, **kwargs):
-        debit = Debit.objects.get(pk=kwargs.get("debitid"))
-        debit.warehouseid = Warehouse.objects.get(pk=kwargs.get("warehouseid"))
-        debit.productid = Product.objects.get(pk=kwargs.get("productid"))
-        debit.pricetypeid = Pricetype.objects.get(pk=kwargs.get("pricetypeid"))
-        debit.discountid = Discount.objects.get(pk=kwargs.get("discountid"))
-        debit.statusid = Status.objects.get(pk=kwargs.get("statusid"))
-        debit.qty = kwargs.get("qty")
-        debit.price = kwargs.get("price")
-        debit.tracknumber = kwargs.get("tracknumber")
-        debit.notes = kwargs.get("notes", None)
-
-        debit.save()
+        debit = update_debit(kwargs)
         return UpdateDebit(debit=debit)
 
 
