@@ -105,3 +105,121 @@ mutation CreateDebitComplex
   "statusid": 1
 }
 ```
+
+# UpdateDebitComplex query
+```
+mutation UpdateDebitComplex
+(
+  $productid: Int!,
+  $categoryid: Int!,
+  $title: String!,
+  $description: String,
+  $productdetailsid: Int!,
+  $model: String,
+  $url: String,
+  $serialno: String,
+  $weight: Decimal,
+  $height: Decimal,
+  $width: Decimal,
+  $length: Decimal,
+  $productcommentid: Int!,
+  $comment: String,
+  $debitid: Int!,
+  $warehouseid: Int!,
+  $qty: Decimal!,
+  $price: Decimal!,
+  $pricetypeid: Int!,
+  $discountid: Int!,
+  $tracknumber: String!,
+  $statusid: Int!,
+  $notes: String
+)
+{
+  updateDebitcomplex(
+    productData: {
+      productid: $productid,
+      categoryid: $categoryid,
+      title: $title,
+      description: $description
+    }
+    productdetailsData: {
+      productdetailsid: $productdetailsid,
+      model: $model,
+      url: $url,
+      serialno: $serialno,
+      weight: $weight,
+      height: $height,
+      width: $width,
+      length: $length
+    }
+    productcommentData: {
+      productcomentid: $productcommentid,
+      comment: $comment
+    }
+    debitData: {
+      debitid: $debitid,
+      warehouseid: $warehouseid,
+			qty: $qty,
+      price: $price,
+      pricetypeid: $pricetypeid,
+      discountid: $discountid,
+      tracknumber: $tracknumber,
+      statusid: $statusid,
+      notes: $notes
+    }
+  )
+  {
+    product
+    {
+      productid
+      categoryid{
+        categoryid
+        title
+      }
+      title
+      description
+    }
+    productdetails {
+      productdetailsid
+      model
+      url
+      serialno
+      weight
+      height
+      width
+      length
+    }
+    productcomment{
+      productcommentid
+      comment
+    }
+    debit
+    {
+      debitid
+      warehouseid{
+        warehouseid
+      }
+      tracknumber
+    }
+  }
+}
+```
+# UpdateDebitComplex query variables
+```
+{
+  "productid": 52,
+  "categoryid": 1,
+  "title": "Product Debit 2",
+  "productdetailsid": 18,
+  "model": "MODEL-1",
+  "url": "http://google.com",
+  "debitid": 26,
+  "warehouseid": 1,
+  "qty": 10.0,
+  "price": 101.0,
+  "pricetypeid": 1,
+  "discountid": 1,
+  "tracknumber": "TRACK-02",
+  "statusid": 1
+}
+```
