@@ -2,8 +2,10 @@ import graphene
 from django.utils import timezone
 from graphene_django import DjangoObjectType
 from graphene import relay
-from graphql_extensions.auth.decorators import login_required
+# from graphql_extensions.auth.decorators import login_required
+from graphql_jwt.decorators import login_required
 from .models import Category, AuthUser, Status, Pricetype, Discount
+from tradeTools.schemes.jwtAuth import JwtAuth
 from tradeTools.schemes.product import ProductMutation, ProductQuery
 from tradeTools.schemes.debit import DebitMutation, DebitQuery
 from tradeTools.schemes.productDetails import ProductDetailsMutation, ProductDetailsQuery
@@ -74,6 +76,7 @@ class CreateStatus(graphene.Mutation):
 
     status = graphene.Field(StatusType)
 
+    @login_required
     def mutate(self, info, title, value):
         user_instance = AuthUser.objects.get(pk=info.context.user.id)
         current_time = timezone.now()
@@ -93,6 +96,7 @@ class UpdateStatus(graphene.Mutation):
 
     status = graphene.Field(StatusType)
 
+    @login_required
     def mutate(self, info, statusid, title, value):
         status = Status.objects.get(pk=statusid)
         status.title = title
@@ -182,9 +186,11 @@ class Query(graphene.ObjectType):
     def resolve_categories(self, info, **kwargs):
         return Category.objects.all()
 
+    @login_required
     def resolve_statuses(self, info, **kwargs):
         return Status.objects.all()
 
+    @login_required
     def resolve_status(self, info, **kwargs):
         title = kwargs.get('title')
         statusid = kwargs.get('statusid')
@@ -233,6 +239,7 @@ class RootQuery(Query,
 
 
 class RootMutation(Mutation,
+                   JwtAuth,
                    ProductMutation,
                    ProductDetailsMutation,
                    ProductCommentMutation,

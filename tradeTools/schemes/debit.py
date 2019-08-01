@@ -2,6 +2,7 @@ import graphene
 from graphene_django import DjangoObjectType
 from graphene import relay
 from tradeTools.libs.common_db import *
+from graphene_django.filter import DjangoFilterConnectionField
 
 '''
 # django-filters expr
@@ -33,8 +34,12 @@ iregex
 class DebitType(DjangoObjectType):
     class Meta:
         model = Debit
-        filter_fields = ['qty_expr', 'price_expr', 'created_expr']
-        interface = (relay.Node, )
+        filter_fields = {
+            'warehouseid': ['exact', 'in'],
+            'qty': ['exact', 'gt', 'gte', 'lt', 'lte'],
+            'notes': ['icontains']
+        }
+        interfaces = (relay.Node, )
 
 
 class DebitConnection(relay.Connection):
@@ -87,6 +92,7 @@ class DebitMutation(graphene.ObjectType):
 
 
 class DebitQuery(graphene.ObjectType):
+    '''
     debits = relay.ConnectionField(DebitConnection,
                                    debitid=graphene.Int(),
                                    warehouseid=graphene.Int(),
@@ -103,10 +109,24 @@ class DebitQuery(graphene.ObjectType):
                                    userid=graphene.Int(),
                                    created=graphene.DateTime(),
                                    created_expr=graphene.String())
+'''
 
-    debit = graphene.Field(DebitType,
-                           debitid=graphene.Int())
+    debits = DjangoFilterConnectionField(DebitType)
+    debit = graphene.Field(DebitType, debitid=graphene.Int())
 
+    def resolve_debits(self, info, **kwargs):
+        return Debit.objects.all()
+
+    @staticmethod
+    def resolve_debit(self, info, **kwargs):
+        debitid = kwargs.get('debitid')
+
+        if debitid is not None:
+            return Debit.objects.get(pk=debitid)
+
+        return None
+
+'''
     @staticmethod
     def resolve_debits(self, info, **kwargs):
         kwargs.pop('before', None)
@@ -127,12 +147,4 @@ class DebitQuery(graphene.ObjectType):
             return Debit.objects.filter(**kwargs)
 
         return Debit.objects.all()
-
-    @staticmethod
-    def resolve_debit(self, info, **kwargs):
-        debitid = kwargs.get('debitid')
-
-        if debitid is not None:
-            return Debit.objects.get(pk=debitid)
-
-        return None
+'''
