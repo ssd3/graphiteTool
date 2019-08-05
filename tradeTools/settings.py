@@ -166,8 +166,8 @@ AUTHENTICATION_BACKENDS = [
 
 GRAPHQL_JWT = {
     'JWT_ALLOW_ARGUMENT': True,
-    'JWT_VERIFY_EXPIRATION': True,
-    'JWT_EXPIRATION_DELTA': timedelta(minutes=5),
+    'JWT_VERIFY_EXPIRATION': False,
+    'JWT_EXPIRATION_DELTA': timedelta(hours=8),
     'JWT_REFRESH_EXPIRATION_DELTA': timedelta(days=7),
 }
 

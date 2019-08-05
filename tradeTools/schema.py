@@ -188,7 +188,7 @@ class Query(graphene.ObjectType):
 
     @login_required
     def resolve_statuses(self, info, **kwargs):
-        return Status.objects.all()
+        return Status.objects.all().order_by('title')
 
     @login_required
     def resolve_status(self, info, **kwargs):
