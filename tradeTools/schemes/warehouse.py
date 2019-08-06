@@ -71,7 +71,10 @@ class WarehouseMutation(graphene.ObjectType):
 
 
 class WarehouseQuery(graphene.ObjectType):
-    warehouses = DjangoFilterConnectionField(WarehouseType)
+    warehouses = DjangoFilterConnectionField(WarehouseType,
+                                             active=graphene.Boolean(),
+                                             in_field=graphene.Boolean(),
+                                             out=graphene.Boolean())
 
     warehouse = graphene.List(WarehouseType,
                               warehouseid=graphene.Int(),
@@ -81,6 +84,16 @@ class WarehouseQuery(graphene.ObjectType):
                               out=graphene.Boolean())
 
     def resolve_warehouses(self, info, **kwargs):
+        active = kwargs.get('active')
+        in_field = kwargs.get('in_field')
+        out = kwargs.get('out')
+
+        if active is not None and in_field is not None:
+            return Warehouse.objects.filter(active=active, in_field=in_field)
+
+        if active is not None and out is not None:
+            return Warehouse.objects.filter(active=active, out=out)
+
         return Warehouse.objects.all()
 
     def resolve_warehouse(self, info, **kwargs):
