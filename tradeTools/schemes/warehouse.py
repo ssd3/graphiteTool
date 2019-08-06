@@ -94,6 +94,9 @@ class WarehouseQuery(graphene.ObjectType):
         if active is not None and out is not None:
             return Warehouse.objects.filter(active=active, out=out)
 
+        if active is not None and out is None and in_field is None:
+            return Warehouse.objects.filter(active=active)
+
         return Warehouse.objects.all()
 
     def resolve_warehouse(self, info, **kwargs):
