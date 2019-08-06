@@ -13,6 +13,7 @@ from tradeTools.schemes.productDetails import ProductDetailsMutation, ProductDet
 from tradeTools.schemes.warehouse import WarehouseQuery, WarehouseMutation
 from tradeTools.schemes.productComment import ProductCommentMutation, ProductCommentQuery
 from tradeTools.schemes.debitComplex import DebitComplexMutation
+from django.db.models import Q
 
 
 class UserType(DjangoObjectType):
@@ -193,14 +194,24 @@ class Query(graphene.ObjectType):
         search = kwargs.get('search')
 
         if search is not None:
+            return Status.objects.filter(Q(title__icontains=search) |
+                                            Q(value__icontains=search) |
+                                                Q(statusid__icontains=search)).order_by('title')
+
+        return Status.objects.all().order_by('title')
+
+        """
+        if search is not None:
             search_dict = {}
             if search.isdigit():
                 search_dict['statusid'] = int(search)
+
             search_dict['title__icontains'] = search
             search_dict['value__icontains'] = search
-            return Status.objects.filter(**search_dict).order_by('title')
+            return Status.objects.filter(**search_dict).order_by('title')           
 
         return Status.objects.all().order_by('title')
+        """
 
     @login_required
     def resolve_status(self, info, **kwargs):
