@@ -100,12 +100,20 @@ class WarehouseQuery(graphene.ObjectType):
         return Warehouse.objects.all()
 
     def resolve_warehouse(self, info, **kwargs):
+        for key, value in kwargs.items():
+            if value is not None:
+                warehouse = {key:value}
+                return Warehouse.objects.filter(**warehouse)
+
+        return None
+
+        """
         warehouseid = kwargs.get('warehouseid')
         title = kwargs.get('title')
         active = kwargs.get('active')
         in_field = kwargs.get('in_field')
         out = kwargs.get('out')
-
+        
         if warehouseid is not None:
             return Warehouse.objects.filter(pk=warehouseid)
 
@@ -120,5 +128,6 @@ class WarehouseQuery(graphene.ObjectType):
 
         if out is not None:
             return Warehouse.objects.filter(out=out)
-
+        
         return None
+        """
