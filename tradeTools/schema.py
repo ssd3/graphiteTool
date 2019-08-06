@@ -1,4 +1,5 @@
 import graphene
+from django.http import QueryDict
 from django.utils import timezone
 from graphene_django import DjangoObjectType
 from graphene import relay
@@ -143,7 +144,8 @@ class Query(graphene.ObjectType):
 
     categories = graphene.List(CategoryType)
 
-    statuses = graphene.List(StatusType)
+    statuses = graphene.List(StatusType,
+                             search=graphene.String())
     status = graphene.Field(StatusType,
                             title=graphene.String(),
                             statusid=graphene.Int())
@@ -188,6 +190,16 @@ class Query(graphene.ObjectType):
 
     @login_required
     def resolve_statuses(self, info, **kwargs):
+        search = kwargs.get('search')
+
+        if search is not None:
+            search_dict = {}
+            if search.isdigit():
+                search_dict['statusid'] = int(search)
+            search_dict['title__icontains'] = search
+            search_dict['value__icontains'] = search
+            return Status.objects.filter(**search_dict).order_by('title')
+
         return Status.objects.all().order_by('title')
 
     @login_required
