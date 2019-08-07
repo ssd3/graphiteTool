@@ -1,6 +1,7 @@
 import graphene
 from django.http import QueryDict
 from django.utils import timezone
+import datetime
 from graphene_django import DjangoObjectType
 from graphene import relay
 # from graphql_extensions.auth.decorators import login_required
@@ -146,7 +147,10 @@ class Query(graphene.ObjectType):
     categories = graphene.List(CategoryType)
 
     statuses = graphene.List(StatusType,
-                             search=graphene.String())
+                             search=graphene.String(),
+                             date_from=graphene.DateTime(),
+                             date_to=graphene.DateTime())
+
     status = graphene.Field(StatusType,
                             title=graphene.String(),
                             statusid=graphene.Int())
@@ -192,26 +196,21 @@ class Query(graphene.ObjectType):
     @login_required
     def resolve_statuses(self, info, **kwargs):
         search = kwargs.get('search')
+        date_from = kwargs.get('date_from')
+        date_to = kwargs.get('date_to')
+
+        query_filter_set = Q(title__icontains=search) | Q(value__icontains=search) | Q(statusid__icontains=search)
+
+        if None not in (search, date_from, date_to):
+            return Status.objects.filter(query_filter_set, Q(created__range=(date_from,date_to)))
 
         if search is not None:
-            return Status.objects.filter(Q(title__icontains=search) |
-                                            Q(value__icontains=search) |
-                                                Q(statusid__icontains=search)).order_by('title')
+            return Status.objects.filter(query_filter_set).order_by('title')
+
+        if None not in (date_from, date_to):
+            return Status.objects.filter(created__range=(date_from, date_to))
 
         return Status.objects.all().order_by('title')
-
-        """
-        if search is not None:
-            search_dict = {}
-            if search.isdigit():
-                search_dict['statusid'] = int(search)
-
-            search_dict['title__icontains'] = search
-            search_dict['value__icontains'] = search
-            return Status.objects.filter(**search_dict).order_by('title')           
-
-        return Status.objects.all().order_by('title')
-        """
 
     @login_required
     def resolve_status(self, info, **kwargs):
