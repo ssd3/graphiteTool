@@ -49,6 +49,7 @@ class ProductMutation(graphene.ObjectType):
 
 
 class ProductQuery(graphene.ObjectType):
+    products_byuser = relay.ConnectionField(ProductConnection)
     products = relay.ConnectionField(ProductConnection)
     product = graphene.List(ProductType,
                             productid=graphene.Int(),
@@ -58,6 +59,9 @@ class ProductQuery(graphene.ObjectType):
 
     def resolve_products(root, info, **kwargs):
         return Product.objects.all().order_by('productid')
+
+    def resolve_products_byuser(self, info, **kwargs):
+        return Product.objects.filter(userid=info.context.user.id)
 
     def resolve_product(self, info, **kwargs):
         productid = kwargs.get('productid')
