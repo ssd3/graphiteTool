@@ -269,3 +269,40 @@ mutation Mutation($debitid: Int!,
   "notes": "update debit"
 }
 ```
+
+# Get debits by text (4 tables) with TotalCount
+```
+query getDebits($search_text: String){  
+  debitsBytext(searchText: $search_text){  
+    totalCount
+    edges{     
+      node{        
+        debitid      
+        productid{
+          productid
+          title
+          productdetailsSet{
+            productid{
+              productid
+            }
+            model
+          }
+          productcommentSet{
+            productid{
+              productid
+            }
+            comment            
+          }
+        }        
+      }
+    }
+  }
+}
+```
+
+# Variable for get debits by text (4 tables)
+```
+{
+  "search_text": "Model" or "777" or "Product"
+}
+```

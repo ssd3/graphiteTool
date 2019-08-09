@@ -3,6 +3,9 @@ from graphene_django import DjangoObjectType
 from graphene import relay
 from tradeTools.libs.common_db import *
 from graphene_django.filter import DjangoFilterConnectionField
+from django.core.exceptions import ObjectDoesNotExist
+from django.db.models import Q
+from graphene import Connection
 
 '''
 # django-filters expr
@@ -30,6 +33,19 @@ regex
 iregex
 '''
 
+'''
+TotalCount doesn't work like in products because debit uses DjangoFilterConnectionField (not relay.Connection)
+TotalCount works with adding following class below
+'''
+class TotalCountConnection(Connection):
+    class Meta:
+        abstract = True
+
+    total_count = graphene.Int()
+
+    def resolve_total_count(root, info, **kwargs):
+        return root.length
+
 
 class DebitType(DjangoObjectType):
     class Meta:
@@ -40,6 +56,7 @@ class DebitType(DjangoObjectType):
             'notes': ['icontains']
         }
         interfaces = (relay.Node, )
+        connection_class = TotalCountConnection
 
 
 class DebitConnection(relay.Connection):
@@ -111,8 +128,44 @@ class DebitQuery(graphene.ObjectType):
                                    created_expr=graphene.String())
 '''
 
+    debits_bytext = DjangoFilterConnectionField(DebitType,
+                                                search_text=graphene.String())
     debits = DjangoFilterConnectionField(DebitType)
     debit = graphene.Field(DebitType, debitid=graphene.Int())
+
+    def resolve_debits_bytext(self, info, **kwargs):
+        search_text = kwargs.get('search_text')
+        debits = []
+
+        for debit in Debit.objects.all():
+            try:
+                '''
+                get product by productid from current debit and
+                looking for text in product
+                
+                continue is using to make output debit set unique without replications
+                '''
+                product = Product.objects.filter(productid=debit.productid_id)
+                if product.filter(Q(title__icontains=search_text) | Q(description__icontains=search_text)):
+                    debits.append(debit)
+                    continue
+
+                # get product_details by productid from current product
+                product_details = Productdetails.objects.filter(productid=debit.productid_id)
+                if product_details.filter(Q(model__icontains=search_text)):
+                    debits.append(debit)
+                    continue
+
+                # get product_comments by productid from current product
+                product_comments = Productcomment.objects.filter(productid=debit.productid_id)
+                if product_comments.filter(Q(comment__icontains=search_text)):
+                    debits.append(debit)
+                    continue
+
+            except ObjectDoesNotExist:
+                print(ObjectDoesNotExist)
+
+        return debits
 
     def resolve_debits(self, info, **kwargs):
         return Debit.objects.all()
