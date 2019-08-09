@@ -2,6 +2,7 @@ import graphene
 from graphene_django import DjangoObjectType
 from graphene import relay
 from tradeTools.libs.common_db import *
+from django.db.models import Q
 
 
 class ProductType(DjangoObjectType):
@@ -55,7 +56,12 @@ class ProductMutation(graphene.ObjectType):
 
 
 class ProductQuery(graphene.ObjectType):
-    products_byuser = relay.ConnectionField(ProductConnection)
+    products_bycategory_title = relay.ConnectionField(ProductConnection,
+                                                      category_title=graphene.String())
+
+    products_byuser = relay.ConnectionField(ProductConnection,
+                                            category_title=graphene.String())
+
     products = relay.ConnectionField(ProductConnection)
     product = graphene.List(ProductType,
                             productid=graphene.Int(),
@@ -66,8 +72,33 @@ class ProductQuery(graphene.ObjectType):
     def resolve_products(root, info, **kwargs):
         return Product.objects.all().order_by('productid')
 
+    def resolve_products_bycategory_title(self, info, **kwargs):
+        # get category title input
+        category_title = kwargs.get('category_title')
+
+        # get all categories contains input e.g. 'Categ'
+        categories = Category.objects.filter(Q(title__icontains=category_title))
+
+        # get all categories ids which contains title 'Categ'
+        categories_ids = []
+        for category in categories:
+            categories_ids.append(category.categoryid)
+
+        return Product.objects.filter(categoryid__in=categories_ids)
+
     def resolve_products_byuser(self, info, **kwargs):
-        return Product.objects.filter(userid=info.context.user.id)
+        category_title = kwargs.get('category_title')
+
+        if category_title is not None:
+            categories = Category.objects.filter(Q(title__icontains=category_title))
+
+            categories_ids = []
+            for category in categories:
+                categories_ids.append(category.categoryid)
+
+            return Product.objects.filter(userid=info.context.user.id, categoryid__in=categories_ids)
+        else:
+            return Product.objects.filter(userid=info.context.user.id)
 
     def resolve_product(self, info, **kwargs):
         productid = kwargs.get('productid')

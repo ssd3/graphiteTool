@@ -176,3 +176,54 @@ mutation UPDATE_PRODUCT
   "description": "Product 2 description"
 }
 ```
+
+# Get products by category title
+```
+query getProductsByCategoryTitle($category_title: String){
+  productsBycategoryTitle(categoryTitle: $category_title){    
+    edges{
+      node{       
+        title
+        categoryid{
+          categoryid
+          title
+        }
+      }
+    }
+  }
+}
+```
+
+# Variable get products by category title
+```
+{
+  "category_title": "def"
+}
+```
+
+# Get products by UserID and (optional) by CategoryID
+```
+query getProductsByUserID($category_title: String){
+  productsByuser(categoryTitle: $category_title){    
+    edges{
+      node{
+        title
+        userid{
+          id
+        }
+        categoryid{
+          categoryid
+          title
+        }
+      }
+    }
+  }
+}
+```
+
+# Variable get products by UserID and (optional) by CategoryID
+```
+{
+  "category_title": "categ"
+}
+```
