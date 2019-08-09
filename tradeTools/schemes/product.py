@@ -14,6 +14,12 @@ class ProductConnection(relay.Connection):
     class Meta:
         node = ProductType
 
+    total_count = graphene.Int()
+
+    @staticmethod
+    def resolve_total_count(self, info, **kwargs):
+        return self.iterable.count()
+
 
 class CreateProduct(graphene.Mutation):
     class Arguments:
