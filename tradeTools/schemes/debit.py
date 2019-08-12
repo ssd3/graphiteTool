@@ -135,37 +135,63 @@ class DebitQuery(graphene.ObjectType):
 
     def resolve_debits_bytext(self, info, **kwargs):
         search_text = kwargs.get('search_text')
-        debits = []
+        debits_ids = []
 
         for debit in Debit.objects.all():
             try:
-                '''
-                get product by productid from current debit and
-                looking for text in product
-                
-                continue is using to make output debit set unique without replications
-                '''
+                if search_text in debit.tracknumber:
+                    debits_ids.append(debit.debitid)
+                    continue
+
+                if debit.notes:
+                    if search_text in debit.notes:
+                        debits_ids.append(debit.debitid)
+                        continue
+
                 product = Product.objects.filter(productid=debit.productid_id)
                 if product.filter(Q(title__icontains=search_text) | Q(description__icontains=search_text)):
-                    debits.append(debit)
+                    debits_ids.append(debit.debitid)
                     continue
 
-                # get product_details by productid from current product
                 product_details = Productdetails.objects.filter(productid=debit.productid_id)
                 if product_details.filter(Q(model__icontains=search_text)):
-                    debits.append(debit)
+                    debits_ids.append(debit.debitid)
                     continue
 
-                # get product_comments by productid from current product
                 product_comments = Productcomment.objects.filter(productid=debit.productid_id)
                 if product_comments.filter(Q(comment__icontains=search_text)):
-                    debits.append(debit)
+                    debits_ids.append(debit.debitid)
+                    continue
+
+                warehouse = Warehouse.objects.filter(warehouseid=debit.warehouseid_id)
+                if warehouse.filter(Q(title__icontains=search_text) | Q(description__icontains=search_text)):
+                    debits_ids.append(debit.debitid)
+                    continue
+
+                pricetype = Pricetype.objects.filter(pricetypeid=debit.pricetypeid_id)
+                if pricetype.filter(Q(title__icontains=search_text) | Q(description__icontains=search_text)):
+                    debits_ids.append(debit.debitid)
+                    continue
+
+                discount = Discount.objects.filter(discountid=debit.discountid_id)
+                if discount.filter(Q(title__icontains=search_text)):
+                    debits_ids.append(debit.debitid)
+                    continue
+
+                status = Status.objects.filter(statusid=debit.statusid_id)
+                if status.filter(Q(title__icontains=search_text)):
+                    debits_ids.append(debit.debitid)
+                    continue
+
+                user = AuthUser.objects.filter(id=debit.userid_id)
+                if user.filter(Q(username__icontains=search_text)):
+                    debits_ids.append(debit.debitid)
                     continue
 
             except ObjectDoesNotExist:
                 print(ObjectDoesNotExist)
 
-        return debits
+        return Debit.objects.filter(pk__in=debits_ids)
 
     def resolve_debits(self, info, **kwargs):
         return Debit.objects.all()
