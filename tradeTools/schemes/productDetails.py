@@ -65,6 +65,7 @@ class UpdateProductDetails(graphene.Mutation):
 
     def mutate(self, info, **kwargs):
         productdetails = update_productdetails(kwargs)
+        productdetails.save()
         return UpdateProductDetails(productdetails=productdetails)
 
 

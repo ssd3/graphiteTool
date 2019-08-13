@@ -52,6 +52,7 @@ class UpdateProductComment(graphene.Mutation):
 
     def mutate(self, info, **kwargs):
         productcomment = update_productcomment(kwargs)
+        productcomment.save()
         return UpdateProductComment(productcomment=productcomment)
 
 

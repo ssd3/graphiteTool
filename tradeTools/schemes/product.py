@@ -47,6 +47,7 @@ class UpdateProduct(graphene.Mutation):
 
     def mutate(self, info, **kwargs):
         product = update_product(kwargs)
+        product.save()
         return UpdateProduct(product=product)
 
 

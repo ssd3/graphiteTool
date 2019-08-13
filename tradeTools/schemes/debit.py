@@ -100,6 +100,7 @@ class UpdateDebit(graphene.Mutation):
 
     def mutate(self, info, **kwargs):
         debit = update_debit(kwargs)
+        debit.save()
         return UpdateDebit(debit=debit)
 
 
