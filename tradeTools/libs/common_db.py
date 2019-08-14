@@ -98,15 +98,16 @@ def update_debit(data):
     debit.tracknumber = data.get("tracknumber")
     debit.notes = data.get("notes", None)
 
+    debit.save()
     return debit
 
 
 def create_credit(info, data):
     credit = Credit(credittypeid=Credittype.objects.get(pk=data.get('credittypeid')),
-                    buyerid=data.get('buyerid'),
-                    fromwarehouseid=data.get('fromwarehouseid'),
+                    buyerid=AuthUser.objects.get(pk=info.context.user.id),
+                    fromwarehouseid=Warehouse.objects.get(pk=data.get('fromwarehouseid')),
                     userid=AuthUser.objects.get(pk=info.context.user.id),
-                    towarehouseid=data.get('towarehouseid'),
+                    towarehouseid=Warehouse.objects.get(pk=data.get('towarehouseid')),
                     created=timezone.now(),
                     sent=data.get('sent'),
                     received=data.get('received'))
@@ -118,7 +119,31 @@ def update_credit(data):
     credit = Credit.objects.get(pk=data.get('creditid'))
     credit.credittypeid = Credittype.objects.get(pk=data.get('credittypeid'))
     credit.buyerid = data.get('buyerid')
-    credit.fromwarehouseid = data.get('fromwarehouseid')
-    credit.towarehouseid = data.get('towarehouseid')
+    credit.fromwarehouseid = Warehouse.objects.get(pk=data.get('fromwarehouseid'))
+    credit.towarehouseid = Warehouse.objects.get(pk=data.get('towarehouseid'))
 
+    credit.save()
     return credit
+
+def create_creditdetail(info, data):
+    creditdetail = Creditdetails(creditid=Credit.objects.get(pk=data.get('creditid')),
+                                 productid=Product.objects.get(pk=data.get('productid')),
+                                 price=data.get('price', 0.00),
+                                 qty=data.get('qty', 0.00),
+                                 pricetypeid=Pricetype.objects.get(pk=data.get('pricetypeid')),
+                                 userid=AuthUser.objects.get(pk=info.context.user.id),
+                                 created=timezone.now())
+
+    creditdetail.save()
+    return creditdetail
+
+def update_creditdetail(data):
+    creditdetail = Creditdetails.objects.get(pk=data.get('creditdetailid'))
+    creditdetail.creditid = Credit.objects.get(pk=data.get('creditid'))
+    creditdetail.productid = Product.objects.get(pk=data.get('productid'))
+    creditdetail.price = data.get('price')
+    creditdetail.qty = data.get('qty')
+    creditdetail.pricetypeid = Pricetype.objects.get(pk=data.get('pricetypeid'))
+
+    creditdetail.save()
+    return creditdetail
