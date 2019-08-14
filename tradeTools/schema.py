@@ -10,6 +10,7 @@ from .models import Category, AuthUser, Status, Pricetype, Discount
 from tradeTools.schemes.jwtAuth import JwtAuth
 from tradeTools.schemes.product import ProductMutation, ProductQuery
 from tradeTools.schemes.debit import DebitMutation, DebitQuery
+from tradeTools.schemes.credit import CreditMutation, CreditQuery
 from tradeTools.schemes.productDetails import ProductDetailsMutation, ProductDetailsQuery
 from tradeTools.schemes.warehouse import WarehouseQuery, WarehouseMutation
 from tradeTools.schemes.productComment import ProductCommentMutation, ProductCommentQuery
@@ -256,6 +257,7 @@ class RootQuery(Query,
                 ProductCommentQuery,
                 DebitQuery,
                 WarehouseQuery,
+                CreditQuery,
                 graphene.ObjectType):
     pass
 
@@ -268,6 +270,7 @@ class RootMutation(Mutation,
                    DebitMutation,
                    WarehouseMutation,
                    DebitComplexMutation,
+                   CreditMutation,
                    graphene.ObjectType):
     pass
 

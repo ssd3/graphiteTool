@@ -6,6 +6,7 @@ from graphene_django.filter import DjangoFilterConnectionField
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
 from graphene import Connection
+from tradeTools.libs.total_count import TotalCountConnection
 
 '''
 # django-filters expr
@@ -32,19 +33,6 @@ search
 regex
 iregex
 '''
-
-'''
-TotalCount doesn't work like in products because debit uses DjangoFilterConnectionField (not relay.Connection)
-TotalCount works with adding following class below
-'''
-class TotalCountConnection(Connection):
-    class Meta:
-        abstract = True
-
-    total_count = graphene.Int()
-
-    def resolve_total_count(root, info, **kwargs):
-        return root.length
 
 
 class DebitType(DjangoObjectType):

@@ -99,3 +99,26 @@ def update_debit(data):
     debit.notes = data.get("notes", None)
 
     return debit
+
+
+def create_credit(info, data):
+    credit = Credit(credittypeid=Credittype.objects.get(pk=data.get('credittypeid')),
+                    buyerid=data.get('buyerid'),
+                    fromwarehouseid=data.get('fromwarehouseid'),
+                    userid=AuthUser.objects.get(pk=info.context.user.id),
+                    towarehouseid=data.get('towarehouseid'),
+                    created=timezone.now(),
+                    sent=data.get('sent'),
+                    received=data.get('received'))
+
+    credit.save()
+    return credit
+
+def update_credit(data):
+    credit = Credit.objects.get(pk=data.get('creditid'))
+    credit.credittypeid = Credittype.objects.get(pk=data.get('credittypeid'))
+    credit.buyerid = data.get('buyerid')
+    credit.fromwarehouseid = data.get('fromwarehouseid')
+    credit.towarehouseid = data.get('towarehouseid')
+
+    return credit
