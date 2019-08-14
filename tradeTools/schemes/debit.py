@@ -157,7 +157,7 @@ class DebitQuery(graphene.ObjectType):
                                       Q(tracknumber__icontains=search_text) |
                                       Q(notes__icontains=search_text))
 
-        return Debit.objects.filter(pk__in=debits)
+        return Debit.objects.filter(pk__in=debits).order_by('-created')
 
     def resolve_debits(self, info, **kwargs):
         return Debit.objects.all()
