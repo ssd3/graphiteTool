@@ -136,63 +136,28 @@ class DebitQuery(graphene.ObjectType):
 
     def resolve_debits_bytext(self, info, **kwargs):
         search_text = kwargs.get('search_text')
-        debits_ids = []
 
-        for debit in Debit.objects.all():
-            try:
-                if search_text in debit.tracknumber:
-                    debits_ids.append(debit.debitid)
-                    continue
+        products = Product.objects.filter(Q(title__icontains=search_text) | Q(description__icontains=search_text))
+        product_details = Productdetails.objects.filter(Q(model__icontains=search_text))
+        product_comments = Productcomment.objects.filter(Q(comment__icontains=search_text))
+        warehouses = Warehouse.objects.filter(Q(title__icontains=search_text) | Q(description__icontains=search_text))
+        pricetype = Pricetype.objects.filter(Q(title__icontains=search_text) | Q(description__icontains=search_text))
+        discount = Discount.objects.filter(Q(title__icontains=search_text))
+        status = Status.objects.filter(Q(title__icontains=search_text))
+        user = AuthUser.objects.filter(Q(username__icontains=search_text))
 
-                if debit.notes:
-                    if search_text in debit.notes:
-                        debits_ids.append(debit.debitid)
-                        continue
+        debits = Debit.objects.filter(Q(productid__in=products) |
+                                      Q(productid__productdetails__in=product_details) |
+                                      Q(productid__productcomment__in=product_comments) |
+                                      Q(warehouseid__in=warehouses) |
+                                      Q(pricetypeid__in=pricetype) |
+                                      Q(discountid__in=discount) |
+                                      Q(statusid__in=status) |
+                                      Q(userid__in=user) |
+                                      Q(tracknumber__icontains=search_text) |
+                                      Q(notes__icontains=search_text))
 
-                product = Product.objects.filter(productid=debit.productid_id)
-                if product.filter(Q(title__icontains=search_text) | Q(description__icontains=search_text)):
-                    debits_ids.append(debit.debitid)
-                    continue
-
-                product_details = Productdetails.objects.filter(productid=debit.productid_id)
-                if product_details.filter(Q(model__icontains=search_text)):
-                    debits_ids.append(debit.debitid)
-                    continue
-
-                product_comments = Productcomment.objects.filter(productid=debit.productid_id)
-                if product_comments.filter(Q(comment__icontains=search_text)):
-                    debits_ids.append(debit.debitid)
-                    continue
-
-                warehouse = Warehouse.objects.filter(warehouseid=debit.warehouseid_id)
-                if warehouse.filter(Q(title__icontains=search_text) | Q(description__icontains=search_text)):
-                    debits_ids.append(debit.debitid)
-                    continue
-
-                pricetype = Pricetype.objects.filter(pricetypeid=debit.pricetypeid_id)
-                if pricetype.filter(Q(title__icontains=search_text) | Q(description__icontains=search_text)):
-                    debits_ids.append(debit.debitid)
-                    continue
-
-                discount = Discount.objects.filter(discountid=debit.discountid_id)
-                if discount.filter(Q(title__icontains=search_text)):
-                    debits_ids.append(debit.debitid)
-                    continue
-
-                status = Status.objects.filter(statusid=debit.statusid_id)
-                if status.filter(Q(title__icontains=search_text)):
-                    debits_ids.append(debit.debitid)
-                    continue
-
-                user = AuthUser.objects.filter(id=debit.userid_id)
-                if user.filter(Q(username__icontains=search_text)):
-                    debits_ids.append(debit.debitid)
-                    continue
-
-            except ObjectDoesNotExist:
-                print(ObjectDoesNotExist)
-
-        return Debit.objects.filter(pk__in=debits_ids)
+        return Debit.objects.filter(pk__in=debits)
 
     def resolve_debits(self, info, **kwargs):
         return Debit.objects.all()
