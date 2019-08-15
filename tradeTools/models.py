@@ -191,12 +191,12 @@ class Productdetails(models.Model):
     weight = models.DecimalField(db_column='Weight', max_digits=10, decimal_places=2, blank=True, null=True)  # Field name made lowercase.
     height = models.DecimalField(db_column='Height', max_digits=10, decimal_places=2, blank=True, null=True)  # Field name made lowercase.
     width = models.DecimalField(db_column='Width', max_digits=10, decimal_places=2, blank=True, null=True)  # Field name made lowercase.
-    length = models.DecimalField(db_column='Length', max_digits=10, decimal_places=2, blank=True, null=True)  # Field name made lowercase.
+    lenght = models.DecimalField(db_column='Lenght', max_digits=10, decimal_places=2, blank=True, null=True)  # Field name made lowercase.
     userid = models.ForeignKey('AuthUser', models.DO_NOTHING, db_column='UserID')  # Field name made lowercase.
     created = models.DateTimeField(db_column='Created')  # Field name made lowercase.
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'ProductDetails'
 
 

@@ -20,7 +20,7 @@ class ProductDetailsInput(graphene.InputObjectType):
     weight = graphene.Decimal(default=0.0)
     height = graphene.Decimal(default=0.0)
     width = graphene.Decimal(default=0.0)
-    length = graphene.Decimal(default=0.0)
+    lenght = graphene.Decimal(default=0.0)
 
 
 class ProductCommentInput(graphene.InputObjectType):
@@ -53,7 +53,7 @@ class ProductDetailsUpdateInput(graphene.InputObjectType):
     weight = graphene.Decimal(default=0.0)
     height = graphene.Decimal(default=0.0)
     width = graphene.Decimal(default=0.0)
-    length = graphene.Decimal(default=0.0)
+    lenght = graphene.Decimal(default=0.0)
 
 
 class ProductCommentUpdateInput(graphene.InputObjectType):

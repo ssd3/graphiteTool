@@ -40,7 +40,7 @@ class CreateProductDetails(graphene.Mutation):
         weight = graphene.Decimal()
         height = graphene.Decimal()
         width = graphene.Decimal()
-        length = graphene.Decimal()
+        lenght = graphene.Decimal()
 
     productdetails = graphene.Field(ProductDetailsType)
 
@@ -59,7 +59,7 @@ class UpdateProductDetails(graphene.Mutation):
         weight = graphene.Decimal()
         height = graphene.Decimal()
         width = graphene.Decimal()
-        length = graphene.Decimal()
+        lenght = graphene.Decimal()
 
     productdetails = graphene.Field(ProductDetailsType)
 

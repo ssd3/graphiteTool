@@ -109,3 +109,14 @@ and Query Variables example
 }
 
 ```
+
+
+# Edit Length to Lenght
+```
+1. models.py class ProductDetails
+lenght = models.DecimalField(db_column='Lenght', max_digits=10, decimal_places=2, blank=True, null=True)
+Class Meta: managed = True
+2. py manage.py makemigrations tradeTools
+3. py manage.py migrate
+4. go to pgadmin ProductDetails->props->columns->rename to Lenght
+```

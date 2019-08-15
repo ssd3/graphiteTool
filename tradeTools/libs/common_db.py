@@ -30,7 +30,7 @@ def create_productdetails(info, data):
                                     weight=data.get("weight", 0.0),
                                     height=data.get("height", 0.0),
                                     width=data.get("width", 0.0),
-                                    length=data.get("length", 0.0),
+                                    lenght=data.get("lenght", 0.0),
                                     userid=AuthUser.objects.get(pk=info.context.user.id),
                                     created=timezone.now())
     productdetails.save()
@@ -46,7 +46,7 @@ def update_productdetails(data):
     productdetails.weight = data.get("weight", 0.0)
     productdetails.height = data.get("height", 0.0)
     productdetails.width = data.get("width", 0.0)
-    productdetails.length = data.get("length", 0.0)
+    productdetails.lenght = data.get("lenght", 0.0)
 
     productdetails.save()
     return productdetails
