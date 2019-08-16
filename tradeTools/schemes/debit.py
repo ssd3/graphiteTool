@@ -92,9 +92,22 @@ class UpdateDebit(graphene.Mutation):
         return UpdateDebit(debit=debit)
 
 
+class UpdateDebitStatusID(graphene.Mutation):
+    class Arguments:
+        debitid = graphene.List(graphene.Int)
+        statusid = graphene.Int()
+
+    debit = graphene.List(DebitType)
+
+    def mutate(self, info, **kwargs):
+        debit = update_debit_statusid(kwargs)
+        return UpdateDebitStatusID(debit=debit)
+
+
 class DebitMutation(graphene.ObjectType):
     create_debit = CreateDebit.Field()
     update_debit = UpdateDebit.Field()
+    update_debit_statusid = UpdateDebitStatusID.Field()
 
 
 class DebitQuery(graphene.ObjectType):

@@ -306,3 +306,28 @@ query getDebits($search_text: String){
   "search_text": "Model" or "777" or "Product"
 }
 ```
+
+
+# Update Debit's StatusID 
+```
+mutation UpdateDebitStatusID($debitid: [Int]!, $statusid: Int!)
+{
+  updateDebitStatusid(debitid: $debitid, statusid: $statusid)
+  {
+    debit{
+      debitid
+      statusid{
+        statusid
+      }
+    }
+  }
+}
+```
+
+# Var upd debit's statusid
+```
+{
+  "debitid": [2,6,8],
+  "statusid": 2
+}
+```

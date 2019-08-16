@@ -164,3 +164,8 @@ def update_status(data):
 
     status.save()
     return status
+
+def update_debit_statusid(data):
+    Debit.objects.filter(pk__in=data.get('debitid')).update(statusid=Status.objects.get(pk=data.get('statusid')))
+    debits = Debit.objects.filter(pk__in=data.get('debitid'))
+    return debits
