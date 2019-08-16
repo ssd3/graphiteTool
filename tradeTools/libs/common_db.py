@@ -150,7 +150,7 @@ def update_creditdetail(data):
 
 def create_status(info, data):
     status = Status(title=data.get('title'),
-                    value=data.get('value'),
+                    color=data.get('color'),
                     userid=AuthUser.objects.get(pk=info.context.user.id),
                     created=timezone.now())
 
@@ -160,7 +160,7 @@ def create_status(info, data):
 def update_status(data):
     status = Status.objects.get(pk=data.get('statusid'))
     status.title = data.get('title')
-    status.value = data.get('value')
+    status.color = data.get('color')
 
     status.save()
     return status

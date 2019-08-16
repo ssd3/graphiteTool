@@ -24,7 +24,7 @@ class StatusQuery(graphene.ObjectType):
         date_from = kwargs.get('date_from')
         date_to = kwargs.get('date_to')
 
-        query_filter_set = Q(title__icontains=search) | Q(value__icontains=search) | Q(statusid__icontains=search)
+        query_filter_set = Q(title__icontains=search) | Q(color__icontains=search) | Q(statusid__icontains=search)
 
         if None not in (search, date_from, date_to):
             return Status.objects.filter(query_filter_set, Q(created__range=(date_from,date_to)))
@@ -53,7 +53,7 @@ class StatusQuery(graphene.ObjectType):
 class CreateStatus(graphene.Mutation):
     class Arguments:
         title = graphene.String(required=True)
-        value = graphene.String(required=True)
+        color = graphene.String(required=True)
 
     status = graphene.Field(StatusType)
 
@@ -66,7 +66,7 @@ class UpdateStatus(graphene.Mutation):
     class Arguments:
         statusid = graphene.Int(required=True)
         title = graphene.String()
-        value = graphene.String()
+        color = graphene.String()
 
     status = graphene.Field(StatusType)
 

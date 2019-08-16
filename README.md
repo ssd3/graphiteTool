@@ -120,3 +120,10 @@ Class Meta: managed = True
 3. py manage.py migrate
 4. go to pgadmin ProductDetails->props->columns->rename to Lenght
 ```
+
+# Rename status.color -> value
+```
+py manage.py makemigrations tradeTools
+py manage.py migrate
+pgadmin rename field
+```
