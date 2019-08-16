@@ -170,7 +170,7 @@ GRAPHQL_JWT = {
     'JWT_EXPIRATION_DELTA': timedelta(hours=8),
     'JWT_REFRESH_EXPIRATION_DELTA': timedelta(days=7),
 }
-
+'''
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -189,7 +189,7 @@ LOGGING = {
         },
     },
 }
-
+'''
 LOGIN_REDIRECT_URL = 'index/'
 LOGOUT_REDIRECT_URL = '/'
 

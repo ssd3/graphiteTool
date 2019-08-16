@@ -6,7 +6,7 @@ from graphene_django import DjangoObjectType
 from graphene import relay
 # from graphql_extensions.auth.decorators import login_required
 from graphql_jwt.decorators import login_required
-from .models import Category, AuthUser, Status, Pricetype, Discount
+from .models import Category, AuthUser, Pricetype, Discount
 from tradeTools.schemes.jwtAuth import JwtAuth
 from tradeTools.schemes.product import ProductMutation, ProductQuery
 from tradeTools.schemes.debit import DebitMutation, DebitQuery
@@ -16,7 +16,7 @@ from tradeTools.schemes.productDetails import ProductDetailsMutation, ProductDet
 from tradeTools.schemes.warehouse import WarehouseQuery, WarehouseMutation
 from tradeTools.schemes.productComment import ProductCommentMutation, ProductCommentQuery
 from tradeTools.schemes.debitComplex import DebitComplexMutation
-from django.db.models import Q
+from tradeTools.schemes.status import StatusQuery, StatusMutation
 
 
 class UserType(DjangoObjectType):
@@ -27,11 +27,6 @@ class UserType(DjangoObjectType):
 class CategoryType(DjangoObjectType):
     class Meta:
         model = Category
-
-
-class StatusType(DjangoObjectType):
-    class Meta:
-        model = Status
 
 
 class PricetypeType(DjangoObjectType):
@@ -74,42 +69,6 @@ class CreateCategory(graphene.Mutation):
         return CreateCategory(category=category)
 
 
-class CreateStatus(graphene.Mutation):
-    class Arguments:
-        title = graphene.String(required=True)
-        value = graphene.String(required=True)
-
-    status = graphene.Field(StatusType)
-
-    @login_required
-    def mutate(self, info, title, value):
-        user_instance = AuthUser.objects.get(pk=info.context.user.id)
-        current_time = timezone.now()
-        status = Status(title=title,
-                        value=value,
-                        userid=user_instance,
-                        created=current_time)
-        status.save()
-        return CreateStatus(status=status)
-
-
-class UpdateStatus(graphene.Mutation):
-    class Arguments:
-        statusid = graphene.Int(required=True)
-        title = graphene.String(required=True)
-        value = graphene.String(required=True)
-
-    status = graphene.Field(StatusType)
-
-    @login_required
-    def mutate(self, info, statusid, title, value):
-        status = Status.objects.get(pk=statusid)
-        status.title = title
-        status.value = value
-        status.save()
-        return UpdateStatus(status=status)
-
-
 class CreatePriceType(graphene.Mutation):
     class Arguments:
         title = graphene.String(required=True)
@@ -133,8 +92,6 @@ class CreatePriceType(graphene.Mutation):
 class Mutation(graphene.ObjectType):
     create_category = CreateCategory.Field()
     update_category = UpdateCategory.Field()
-    create_status = CreateStatus.Field()
-    update_status = UpdateStatus.Field()
     create_pricetype = CreatePriceType.Field()
 
 
@@ -147,15 +104,6 @@ class Query(graphene.ObjectType):
                           description=graphene.String())
 
     categories = graphene.List(CategoryType)
-
-    statuses = graphene.List(StatusType,
-                             search=graphene.String(),
-                             date_from=graphene.DateTime(),
-                             date_to=graphene.DateTime())
-
-    status = graphene.Field(StatusType,
-                            title=graphene.String(),
-                            statusid=graphene.Int())
 
     pricetypes = graphene.List(PricetypeType)
     pricetype = graphene.Field(PricetypeType,
@@ -195,38 +143,6 @@ class Query(graphene.ObjectType):
     def resolve_categories(self, info, **kwargs):
         return Category.objects.all()
 
-    @login_required
-    def resolve_statuses(self, info, **kwargs):
-        search = kwargs.get('search')
-        date_from = kwargs.get('date_from')
-        date_to = kwargs.get('date_to')
-
-        query_filter_set = Q(title__icontains=search) | Q(value__icontains=search) | Q(statusid__icontains=search)
-
-        if None not in (search, date_from, date_to):
-            return Status.objects.filter(query_filter_set, Q(created__range=(date_from,date_to)))
-
-        if search is not None:
-            return Status.objects.filter(query_filter_set).order_by('title')
-
-        if None not in (date_from, date_to):
-            return Status.objects.filter(created__range=(date_from, date_to))
-
-        return Status.objects.all().order_by('title')
-
-    @login_required
-    def resolve_status(self, info, **kwargs):
-        title = kwargs.get('title')
-        statusid = kwargs.get('statusid')
-
-        if title is not None:
-            return Status.objects.get(title=title)
-
-        if statusid is not None:
-            return Status.objects.get(statusid=statusid)
-
-        return None
-
     def resolve_pricetypes(self, info, **kwargs):
         return Pricetype.objects.all()
 
@@ -260,6 +176,7 @@ class RootQuery(Query,
                 WarehouseQuery,
                 CreditQuery,
                 CreditDetailsQuery,
+                StatusQuery,
                 graphene.ObjectType):
     pass
 
@@ -274,6 +191,7 @@ class RootMutation(Mutation,
                    DebitComplexMutation,
                    CreditMutation,
                    CreditDetailMutation,
+                   StatusMutation,
                    graphene.ObjectType):
     pass
 
