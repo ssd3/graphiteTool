@@ -169,7 +169,7 @@ class DebitQuery(graphene.ObjectType):
                      Q(tracknumber__icontains=search_text) |
                      Q(notes__icontains=search_text))
 
-        debits = Debit.objects.filter(query_var).order_by('-debitid')[debits_from:debits_to]
+        debits = Debit.objects.filter(query_var)[debits_from:debits_to]
         return Debit.objects.filter(pk__in=debits)
 
     def resolve_debits(self, info, **kwargs):

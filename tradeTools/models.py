@@ -118,6 +118,7 @@ class Debit(models.Model):
     class Meta:
         managed = False
         db_table = 'Debit'
+        ordering = ['-debitid']
 
 
 class Discount(models.Model):
