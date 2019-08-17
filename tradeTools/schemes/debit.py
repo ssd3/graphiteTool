@@ -131,12 +131,17 @@ class DebitQuery(graphene.ObjectType):
 '''
 
     debits_bytext = DjangoFilterConnectionField(DebitType,
-                                                search_text=graphene.String())
+                                                search_text=graphene.String(),
+                                                page_num=graphene.Int(),
+                                                rows_count=graphene.Int())
+
     debits = DjangoFilterConnectionField(DebitType)
     debit = graphene.Field(DebitType, debitid=graphene.Int())
 
     def resolve_debits_bytext(self, info, **kwargs):
         search_text = kwargs.get('search_text')
+        page_num = kwargs.get('page_num')
+        rows_count = kwargs.get('rows_count')
 
         products = Product.objects.filter(Q(title__icontains=search_text) | Q(description__icontains=search_text))
         product_details = Productdetails.objects.filter(Q(model__icontains=search_text))
@@ -147,16 +152,20 @@ class DebitQuery(graphene.ObjectType):
         status = Status.objects.filter(Q(title__icontains=search_text))
         user = AuthUser.objects.filter(Q(username__icontains=search_text))
 
-        debits = Debit.objects.filter(Q(productid__in=products) |
-                                      Q(productid__productdetails__in=product_details) |
-                                      Q(productid__productcomment__in=product_comments) |
-                                      Q(warehouseid__in=warehouses) |
-                                      Q(pricetypeid__in=pricetype) |
-                                      Q(discountid__in=discount) |
-                                      Q(statusid__in=status) |
-                                      Q(userid__in=user) |
-                                      Q(tracknumber__icontains=search_text) |
-                                      Q(notes__icontains=search_text))
+        query_var = (Q(productid__in=products) |
+                     Q(productid__productdetails__in=product_details) |
+                     Q(productid__productcomment__in=product_comments) |
+                     Q(warehouseid__in=warehouses) |
+                     Q(pricetypeid__in=pricetype) |
+                     Q(discountid__in=discount) |
+                     Q(statusid__in=status) |
+                     Q(userid__in=user) |
+                     Q(tracknumber__icontains=search_text) |
+                     Q(notes__icontains=search_text))
+
+        debits_to = page_num * rows_count
+        debits_from = debits_to - rows_count
+        debits = Debit.objects.filter(query_var)[debits_from:debits_to]
 
         return Debit.objects.filter(pk__in=debits).order_by('-created')
 

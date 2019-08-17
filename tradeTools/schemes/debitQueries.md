@@ -331,3 +331,26 @@ mutation UpdateDebitStatusID($debitid: [Int]!, $statusid: Int!)
   "statusid": 2
 }
 ```
+
+# Get debits by pager (4 tables)
+```
+query getDebits($search_text: String, $page_num: Int, $rows_count: Int){
+  debitsBytext(searchText: $search_text, pageNum: $page_num, rowsCount: $rows_count){
+    totalCount
+    edges{
+      node{
+        tracknumber
+      }
+    }    
+  }
+}
+```
+
+# Var
+```
+{
+  "search_text": "TRACK",
+  "page_num": 1,
+  "rows_count": 2
+}
+```
