@@ -165,9 +165,9 @@ class DebitQuery(graphene.ObjectType):
 
         debits_to = page_num * rows_count
         debits_from = debits_to - rows_count
-        debits = Debit.objects.filter(query_var)[debits_from:debits_to]
+        debits = Debit.objects.filter(query_var).order_by('-debitid')[debits_from:debits_to]
 
-        return Debit.objects.filter(pk__in=debits).order_by('-created')
+        return Debit.objects.filter(pk__in=debits)
 
     def resolve_debits(self, info, **kwargs):
         return Debit.objects.all()
