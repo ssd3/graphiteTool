@@ -130,20 +130,13 @@ class DebitQuery(graphene.ObjectType):
                                    created_expr=graphene.String())
 '''
     debits_bytext = DjangoFilterConnectionField(DebitType,
-                                                search_text=graphene.String(),
-                                                page_num=graphene.Int(),
-                                                rows_count=graphene.Int())
+                                                search_text=graphene.String())
 
     debits = DjangoFilterConnectionField(DebitType)
     debit = graphene.Field(DebitType, debitid=graphene.Int())
 
     def resolve_debits_bytext(self, info, **kwargs):
         search_text = kwargs.get('search_text')
-        page_num = kwargs.get('page_num')
-        rows_count = kwargs.get('rows_count')
-
-        debits_to = page_num * rows_count
-        debits_from = debits_to - rows_count
 
         if search_text == "" or None:
             return Debit.objects.all().order_by('-debitid')
@@ -169,7 +162,7 @@ class DebitQuery(graphene.ObjectType):
                      Q(tracknumber__icontains=search_text) |
                      Q(notes__icontains=search_text))
 
-        debits = Debit.objects.filter(query_var)[debits_from:debits_to]
+        debits = Debit.objects.filter(query_var)
         return Debit.objects.filter(pk__in=debits)
 
     def resolve_debits(self, info, **kwargs):
