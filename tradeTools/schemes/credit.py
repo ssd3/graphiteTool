@@ -3,7 +3,7 @@ from graphene_django import DjangoObjectType
 from graphene import relay
 from graphene_django.filter import DjangoFilterConnectionField
 from tradeTools.libs.common_db import *
-from tradeTools.libs.total_count import TotalCountConnection
+from tradeTools.libs.total_count import ExtendedConnection
 
 
 class CreditType(DjangoObjectType):
@@ -13,7 +13,7 @@ class CreditType(DjangoObjectType):
             'credittypeid': ['exact', 'in']
         }
         interfaces = (relay.Node,)
-        connection_class = TotalCountConnection
+        connection_class = ExtendedConnection
 
 
 class CreditConnection(relay.Connection):

@@ -6,7 +6,7 @@ from graphene_django.filter import DjangoFilterConnectionField
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
 from graphene import Connection
-from tradeTools.libs.total_count import TotalCountConnection
+from tradeTools.libs.total_count import ExtendedConnection
 
 '''
 # django-filters expr
@@ -34,17 +34,16 @@ regex
 iregex
 '''
 
-
 class DebitType(DjangoObjectType):
     class Meta:
         model = Debit
         filter_fields = {
             'warehouseid': ['exact', 'in'],
             'qty': ['exact', 'gt', 'gte', 'lt', 'lte'],
-            'notes': ['icontains']
+            'tracknumber': ['icontains']
         }
         interfaces = (relay.Node, )
-        connection_class = TotalCountConnection
+        connection_class = ExtendedConnection
 
 
 class DebitConnection(relay.Connection):
@@ -110,6 +109,7 @@ class DebitMutation(graphene.ObjectType):
     update_debit_statusid = UpdateDebitStatusID.Field()
 
 
+
 class DebitQuery(graphene.ObjectType):
     '''
     debits = relay.ConnectionField(DebitConnection,
@@ -129,7 +129,6 @@ class DebitQuery(graphene.ObjectType):
                                    created=graphene.DateTime(),
                                    created_expr=graphene.String())
 '''
-
     debits_bytext = DjangoFilterConnectionField(DebitType,
                                                 search_text=graphene.String(),
                                                 page_num=graphene.Int(),
@@ -142,6 +141,13 @@ class DebitQuery(graphene.ObjectType):
         search_text = kwargs.get('search_text')
         page_num = kwargs.get('page_num')
         rows_count = kwargs.get('rows_count')
+
+        debits_to = page_num * rows_count
+        debits_from = debits_to - rows_count
+
+        if search_text == "" or None:
+            return Debit.objects.all().order_by('-debitid')
+
 
         products = Product.objects.filter(Q(title__icontains=search_text) | Q(description__icontains=search_text))
         product_details = Productdetails.objects.filter(Q(model__icontains=search_text))
@@ -163,10 +169,7 @@ class DebitQuery(graphene.ObjectType):
                      Q(tracknumber__icontains=search_text) |
                      Q(notes__icontains=search_text))
 
-        debits_to = page_num * rows_count
-        debits_from = debits_to - rows_count
         debits = Debit.objects.filter(query_var).order_by('-debitid')[debits_from:debits_to]
-
         return Debit.objects.filter(pk__in=debits)
 
     def resolve_debits(self, info, **kwargs):
