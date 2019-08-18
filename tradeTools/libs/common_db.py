@@ -169,3 +169,35 @@ def update_debit_statusid(data):
     Debit.objects.filter(pk__in=data.get('debitid')).update(statusid=Status.objects.get(pk=data.get('statusid')))
     debits = Debit.objects.filter(pk__in=data.get('debitid'))
     return debits
+
+def create_credittype(info, data):
+    credittype = Credittype(title=data.get('title'),
+                            description=data.get('description'),
+                            userid=AuthUser.objects.get(pk=info.context.user.id),
+                            created=timezone.now())
+    credittype.save()
+    return credittype
+
+def update_credittype(data):
+    credittype = Credittype.objects.get(pk=data.get('credittypeid'))
+    credittype.title = data.get('title')
+    credittype.description = data.get('description')
+
+    credittype.save()
+    return credittype
+
+def create_creditcomment(info, data):
+    creditcomment = Creditcomment(creditid=Credit.objects.get(pk=data.get('creditid')),
+                                  comment=data.get('comment'),
+                                  userid=AuthUser.objects.get(pk=info.context.user.id),
+                                  created=timezone.now())
+    creditcomment.save()
+    return creditcomment
+
+def update_creditcomment(data):
+    creditcomment = Creditcomment.objects.get(pk=data.get('creditcommentid'))
+    creditcomment.creditid = Credit.objects.get(pk=data.get('creditid'))
+    creditcomment.comment = data.get('comment')
+
+    creditcomment.save()
+    return creditcomment

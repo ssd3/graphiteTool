@@ -17,6 +17,9 @@ from tradeTools.schemes.warehouse import WarehouseQuery, WarehouseMutation
 from tradeTools.schemes.productComment import ProductCommentMutation, ProductCommentQuery
 from tradeTools.schemes.debitComplex import DebitComplexMutation
 from tradeTools.schemes.status import StatusQuery, StatusMutation
+from tradeTools.schemes.creditType import CreditTypeQuery, CreditTypeMutation
+from tradeTools.schemes.creditComment import CreditCommentQuery, CreditCommentMutation
+
 
 
 class UserType(DjangoObjectType):
@@ -177,6 +180,8 @@ class RootQuery(Query,
                 CreditQuery,
                 CreditDetailsQuery,
                 StatusQuery,
+                CreditTypeQuery,
+                CreditCommentQuery,
                 graphene.ObjectType):
     pass
 
@@ -192,6 +197,8 @@ class RootMutation(Mutation,
                    CreditMutation,
                    CreditDetailMutation,
                    StatusMutation,
+                   CreditTypeMutation,
+                   CreditCommentMutation,
                    graphene.ObjectType):
     pass
 
