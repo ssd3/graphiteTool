@@ -150,10 +150,12 @@ class DebitQuery(graphene.ObjectType):
         discount = Discount.objects.filter(Q(title__icontains=search_text))
         status = Status.objects.filter(Q(title__icontains=search_text))
         user = AuthUser.objects.filter(Q(username__icontains=search_text))
+        category = Category.objects.filter(Q(title__icontains=search_text))
 
-        query_var = (Q(productid__in=products) |
+        query_set = (Q(productid__in=products) |
                      Q(productid__productdetails__in=product_details) |
                      Q(productid__productcomment__in=product_comments) |
+                     Q(productid__categoryid__in=category) |
                      Q(warehouseid__in=warehouses) |
                      Q(pricetypeid__in=pricetype) |
                      Q(discountid__in=discount) |
@@ -162,7 +164,7 @@ class DebitQuery(graphene.ObjectType):
                      Q(tracknumber__icontains=search_text) |
                      Q(notes__icontains=search_text))
 
-        debits = Debit.objects.filter(query_var)
+        debits = Debit.objects.filter(query_set)
         return Debit.objects.filter(pk__in=debits)
 
     def resolve_debits(self, info, **kwargs):
