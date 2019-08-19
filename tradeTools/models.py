@@ -43,9 +43,10 @@ class Credit(models.Model):
     towarehouseid = models.IntegerField(db_column='ToWarehouseID', blank=True, null=True)  # Field name made lowercase.
     sent = models.DateTimeField(db_column='Sent', blank=True, null=True)  # Field name made lowercase.
     received = models.DateTimeField(db_column='Received', blank=True, null=True)  # Field name made lowercase.
+    tracknumber = models.CharField(db_column='TrackNumber', max_length=64, blank=True, null=True)  # Field name made lowercase.
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'Credit'
 
 
@@ -81,6 +82,7 @@ class Creditloss(models.Model):
     creditid = models.ForeignKey(Credit, models.DO_NOTHING, db_column='CreditID')  # Field name made lowercase.
     losstypeid = models.ForeignKey('Losstype', models.DO_NOTHING, db_column='LossTypeID')  # Field name made lowercase.
     rate = models.DecimalField(db_column='Rate', max_digits=10, decimal_places=2)  # Field name made lowercase.
+    notes = models.CharField(db_column='Notes', max_length=1024, blank=True, null=True)  # Field name made lowercase.
     userid = models.ForeignKey('AuthUser', models.DO_NOTHING, db_column='UserID')  # Field name made lowercase.
     created = models.DateTimeField(db_column='Created')  # Field name made lowercase.
 

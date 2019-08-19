@@ -110,7 +110,8 @@ def create_credit(info, data):
                     towarehouseid=Warehouse.objects.get(pk=data.get('towarehouseid')).warehouseid,
                     created=timezone.now(),
                     sent=data.get('sent'),
-                    received=data.get('received'))
+                    received=data.get('received'),
+                    tracknumber=data.get('tracknumber'))
 
     credit.save()
     return credit
@@ -122,6 +123,7 @@ def update_credit(data):
     credit.buyerid = AuthUser.objects.get(pk=data.get('buyerid')).id
     credit.fromwarehouseid = Warehouse.objects.get(pk=data.get('fromwarehouseid')).warehouseid
     credit.towarehouseid = Warehouse.objects.get(pk=data.get('towarehouseid')).warehouseid
+    credit.tracknumber = data.get('tracknumber')
 
     credit.save()
     return credit

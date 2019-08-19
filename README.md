@@ -127,3 +127,9 @@ py manage.py makemigrations tradeTools
 py manage.py migrate
 pgadmin rename field
 ```
+
+# Update Credi/CreditLoss fields
+```
+py manage.py makemigrations tradeTools
+py manage.py migrate
+```

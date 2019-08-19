@@ -29,6 +29,7 @@ class CreateCredit(graphene.Mutation):
         towarehouseid = graphene.Int()
         sent = graphene.DateTime()
         received = graphene.DateTime()
+        tracknumber = graphene.String()
 
     credit = graphene.Field(CreditType)
 
@@ -46,6 +47,7 @@ class UpdateCredit(graphene.Mutation):
         towarehouseid = graphene.Int()
         sent = graphene.DateTime()
         received = graphene.DateTime()
+        tracknumber = graphene.String()
 
     credit = graphene.Field(CreditType)
 
