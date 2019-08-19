@@ -20,6 +20,10 @@ from tradeTools.schemes.status import StatusQuery, StatusMutation
 from tradeTools.schemes.creditType import CreditTypeQuery, CreditTypeMutation
 from tradeTools.schemes.creditComment import CreditCommentQuery, CreditCommentMutation
 
+# Assertion errors from promise when using graphene-django
+# https://github.com/syrusakbary/promise/issues/57
+from promise import promise
+promise.async_instance.disable_trampoline()
 
 
 class UserType(DjangoObjectType):
