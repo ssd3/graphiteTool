@@ -104,10 +104,10 @@ def update_debit(data):
 
 def create_credit(info, data):
     credit = Credit(credittypeid=Credittype.objects.get(pk=data.get('credittypeid')),
-                    buyerid=AuthUser.objects.get(pk=info.context.user.id),
-                    fromwarehouseid=Warehouse.objects.get(pk=data.get('fromwarehouseid')),
+                    buyerid=AuthUser.objects.get(pk=data.get('buyerid')).id,
+                    fromwarehouseid=Warehouse.objects.get(pk=data.get('fromwarehouseid')).warehouseid,
                     userid=AuthUser.objects.get(pk=info.context.user.id),
-                    towarehouseid=Warehouse.objects.get(pk=data.get('towarehouseid')),
+                    towarehouseid=Warehouse.objects.get(pk=data.get('towarehouseid')).warehouseid,
                     created=timezone.now(),
                     sent=data.get('sent'),
                     received=data.get('received'))
@@ -115,15 +115,17 @@ def create_credit(info, data):
     credit.save()
     return credit
 
+
 def update_credit(data):
     credit = Credit.objects.get(pk=data.get('creditid'))
     credit.credittypeid = Credittype.objects.get(pk=data.get('credittypeid'))
-    credit.buyerid = data.get('buyerid')
-    credit.fromwarehouseid = Warehouse.objects.get(pk=data.get('fromwarehouseid'))
-    credit.towarehouseid = Warehouse.objects.get(pk=data.get('towarehouseid'))
+    credit.buyerid = AuthUser.objects.get(pk=data.get('buyerid')).id
+    credit.fromwarehouseid = Warehouse.objects.get(pk=data.get('fromwarehouseid')).warehouseid
+    credit.towarehouseid = Warehouse.objects.get(pk=data.get('towarehouseid')).warehouseid
 
     credit.save()
     return credit
+
 
 def create_creditdetail(info, data):
     creditdetail = Creditdetails(creditid=Credit.objects.get(pk=data.get('creditid')),
