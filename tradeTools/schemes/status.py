@@ -30,12 +30,12 @@ class StatusQuery(graphene.ObjectType):
             return Status.objects.filter(query_filter_set, Q(created__range=(date_from,date_to)))
 
         if search is not None:
-            return Status.objects.filter(query_filter_set).order_by('title')
+            return Status.objects.filter(query_filter_set)
 
         if None not in (date_from, date_to):
             return Status.objects.filter(created__range=(date_from, date_to))
 
-        return Status.objects.all().order_by('title')
+        return Status.objects.all()
 
     def resolve_status(self, info, **kwargs):
         title = kwargs.get('title')

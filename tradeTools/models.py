@@ -211,6 +211,7 @@ class Status(models.Model):
     class Meta:
         managed = True
         db_table = 'Status'
+        ordering = ['statusid']
 
 
 class Warehouse(models.Model):
