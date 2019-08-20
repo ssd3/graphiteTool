@@ -19,6 +19,8 @@ from tradeTools.schemes.debitComplex import DebitComplexMutation
 from tradeTools.schemes.status import StatusQuery, StatusMutation
 from tradeTools.schemes.creditType import CreditTypeQuery, CreditTypeMutation
 from tradeTools.schemes.creditComment import CreditCommentQuery, CreditCommentMutation
+from tradeTools.schemes.lossType import LossTypeQuery, LossTypeMutation
+
 
 # Assertion errors from promise when using graphene-django
 # https://github.com/syrusakbary/promise/issues/57
@@ -186,6 +188,7 @@ class RootQuery(Query,
                 StatusQuery,
                 CreditTypeQuery,
                 CreditCommentQuery,
+                LossTypeQuery,
                 graphene.ObjectType):
     pass
 
@@ -203,6 +206,7 @@ class RootMutation(Mutation,
                    StatusMutation,
                    CreditTypeMutation,
                    CreditCommentMutation,
+                   LossTypeMutation,
                    graphene.ObjectType):
     pass
 

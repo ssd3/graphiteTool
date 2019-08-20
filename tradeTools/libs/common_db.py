@@ -205,3 +205,17 @@ def update_creditcomment(data):
 
     creditcomment.save()
     return creditcomment
+
+def create_losstype(info, data):
+    losstype = Losstype(title=data.get('title'),
+                        userid=AuthUser.objects.get(pk=info.context.user.id),
+                        created=timezone.now())
+    losstype.save()
+    return losstype
+
+def update_losstype(data):
+    losstype = Losstype.objects.get(pk=data.get('losstypeid'))
+    losstype.title = data.get('title')
+
+    losstype.save()
+    return losstype
