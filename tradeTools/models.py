@@ -206,8 +206,8 @@ class Productdetails(models.Model):
 class Status(models.Model):
     statusid = models.AutoField(db_column='StatusID', primary_key=True)  # Field name made lowercase.
     title = models.CharField(db_column='Title', max_length=48)  # Field name made lowercase.
-    color = models.CharField(db_column='Color', max_length=32)  # Field name made lowercase.
-    userid = models.ForeignKey('AuthUser', models.DO_NOTHING, db_column='UserID')  # Field name made lowercase.
+    color = models.CharField(db_column='Color', max_length=32, default='000000')  # Field name made lowercase.
+    userid = models.ForeignKey('AuthUser', models.DO_NOTHING, db_column='UserID', default=1)  # Field name made lowercase.
     created = models.DateTimeField(db_column='Created')  # Field name made lowercase.
 
     class Meta:
