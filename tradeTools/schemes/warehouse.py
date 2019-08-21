@@ -1,4 +1,5 @@
 import graphene
+from django.db.models import Q
 from django.utils import timezone
 from graphene_django import DjangoObjectType
 from graphene import relay
@@ -10,7 +11,7 @@ class WarehouseType(DjangoObjectType):
     class Meta:
         model = Warehouse
         filter_fields = {'title': ['exact', 'icontains', 'istartswith']}
-        interfaces = (relay.Node, )
+        interfaces = (relay.Node,)
 
 
 class WarehouseConnection(relay.Connection):
@@ -88,21 +89,19 @@ class WarehouseQuery(graphene.ObjectType):
         in_field = kwargs.get('in_field')
         out = kwargs.get('out')
 
-        if None not in (active, in_field):
-            return Warehouse.objects.filter(active=active, in_field=in_field)
+        if active is True and in_field is True:
+            return Warehouse.objects.filter(Q(active=active, in_field=in_field))
 
-        if None not in (active, out):
-            return Warehouse.objects.filter(active=active, out=out)
+        if active is True and out is True:
+            return Warehouse.objects.filter(Q(active=active, out=out))
 
-        if active is not None and None in (out, in_field):
-            return Warehouse.objects.filter(active=active)
-
-        return Warehouse.objects.all()
+        if None in (active, in_field, out):
+            return Warehouse.objects.all()
 
     def resolve_warehouse(self, info, **kwargs):
         for key, value in kwargs.items():
             if value is not None:
-                warehouse = {key:value}
+                warehouse = {key: value}
                 return Warehouse.objects.filter(**warehouse)
 
         return None
