@@ -20,6 +20,7 @@ from tradeTools.schemes.status import StatusQuery, StatusMutation
 from tradeTools.schemes.creditType import CreditTypeQuery, CreditTypeMutation
 from tradeTools.schemes.creditComment import CreditCommentQuery, CreditCommentMutation
 from tradeTools.schemes.lossType import LossTypeQuery, LossTypeMutation
+from tradeTools.schemes.authuser import AuthUserQuery
 
 
 # Assertion errors from promise when using graphene-django
@@ -31,6 +32,7 @@ promise.async_instance.disable_trampoline()
 class UserType(DjangoObjectType):
     class Meta:
         model = AuthUser
+        only_fields = ('id', 'username')
 
 
 class CategoryType(DjangoObjectType):
@@ -189,6 +191,7 @@ class RootQuery(Query,
                 CreditTypeQuery,
                 CreditCommentQuery,
                 LossTypeQuery,
+                AuthUserQuery,
                 graphene.ObjectType):
     pass
 

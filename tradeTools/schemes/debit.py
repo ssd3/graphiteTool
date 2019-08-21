@@ -3,9 +3,7 @@ from graphene_django import DjangoObjectType
 from graphene import relay
 from tradeTools.libs.common_db import *
 from graphene_django.filter import DjangoFilterConnectionField
-from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
-from graphene import Connection
 from tradeTools.libs.total_count import ExtendedConnection
 
 '''
@@ -33,6 +31,7 @@ search
 regex
 iregex
 '''
+
 
 class DebitType(DjangoObjectType):
     class Meta:
@@ -107,7 +106,6 @@ class DebitMutation(graphene.ObjectType):
     create_debit = CreateDebit.Field()
     update_debit = UpdateDebit.Field()
     update_debit_statusid = UpdateDebitStatusID.Field()
-
 
 
 class DebitQuery(graphene.ObjectType):
