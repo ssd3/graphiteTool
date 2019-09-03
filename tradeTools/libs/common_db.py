@@ -141,6 +141,7 @@ def create_creditdetail(info, data):
     creditdetail.save()
     return creditdetail
 
+
 def update_creditdetail(data):
     creditdetail = Creditdetails.objects.get(pk=data.get('creditdetailid'))
     creditdetail.creditid = Credit.objects.get(pk=data.get('creditid'))
@@ -152,6 +153,7 @@ def update_creditdetail(data):
     creditdetail.save()
     return creditdetail
 
+
 def create_status(info, data):
     status = Status(title=data.get('title'),
                     color=data.get('color'),
@@ -161,6 +163,7 @@ def create_status(info, data):
     status.save()
     return status
 
+
 def update_status(data):
     status = Status.objects.get(pk=data.get('statusid'))
     status.title = data.get('title')
@@ -169,10 +172,12 @@ def update_status(data):
     status.save()
     return status
 
+
 def update_debit_statusid(data):
     Debit.objects.filter(pk__in=data.get('debitid')).update(statusid=Status.objects.get(pk=data.get('statusid')))
     debits = Debit.objects.filter(pk__in=data.get('debitid'))
     return debits
+
 
 def create_credittype(info, data):
     credittype = Credittype(title=data.get('title'),
@@ -182,6 +187,7 @@ def create_credittype(info, data):
     credittype.save()
     return credittype
 
+
 def update_credittype(data):
     credittype = Credittype.objects.get(pk=data.get('credittypeid'))
     credittype.title = data.get('title')
@@ -189,6 +195,7 @@ def update_credittype(data):
 
     credittype.save()
     return credittype
+
 
 def create_creditcomment(info, data):
     creditcomment = Creditcomment(creditid=Credit.objects.get(pk=data.get('creditid')),
@@ -198,6 +205,7 @@ def create_creditcomment(info, data):
     creditcomment.save()
     return creditcomment
 
+
 def update_creditcomment(data):
     creditcomment = Creditcomment.objects.get(pk=data.get('creditcommentid'))
     creditcomment.creditid = Credit.objects.get(pk=data.get('creditid'))
@@ -206,6 +214,7 @@ def update_creditcomment(data):
     creditcomment.save()
     return creditcomment
 
+
 def create_losstype(info, data):
     losstype = Losstype(title=data.get('title'),
                         userid=AuthUser.objects.get(pk=info.context.user.id),
@@ -213,9 +222,45 @@ def create_losstype(info, data):
     losstype.save()
     return losstype
 
+
 def update_losstype(data):
     losstype = Losstype.objects.get(pk=data.get('losstypeid'))
     losstype.title = data.get('title')
 
     losstype.save()
     return losstype
+
+
+def create_creditloss(info, data):
+    creditloss = Creditloss(creditid=Credit.objects.get(pk=data.get('creditid')),
+                            losstypeid=Losstype.objects.get(pk=data.get('losstypeid')),
+                            rate=data.get('rate'),
+                            notes=data.get('notes'),
+                            userid=AuthUser.objects.get(pk=info.context.user.id),
+                            created=timezone.now())
+    creditloss.save()
+    return creditloss
+
+
+def create_creditlosses(info, data):
+    creditlosses = []
+    for creditloss in data:
+        tmp_creditloss = Creditloss(creditid=Credit.objects.get(pk=creditloss.get('creditid')),
+                                    losstypeid=Losstype.objects.get(pk=creditloss.get('losstypeid')),
+                                    rate=creditloss.get('rate'),
+                                    notes=creditloss.get('notes'),
+                                    userid=AuthUser.objects.get(pk=info.context.user.id),
+                                    created=timezone.now())
+        tmp_creditloss.save()
+        creditlosses.append(tmp_creditloss)
+    return creditlosses
+
+
+def update_creditloss(data):
+    creditloss = Creditloss.objects.get(pk=data.get('creditlossid'))
+    creditloss.losstypeid = Losstype.objects.get(pk=data.get('losstypeid'))
+    creditloss.rate = data.get('rate')
+    creditloss.notes = data.get('notes')
+
+    creditloss.save()
+    return creditloss

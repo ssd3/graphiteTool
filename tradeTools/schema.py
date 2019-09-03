@@ -6,6 +6,8 @@ from graphene_django import DjangoObjectType
 from graphene import relay
 # from graphql_extensions.auth.decorators import login_required
 from graphql_jwt.decorators import login_required
+
+from tradeTools.schemes.creditLoss import CreditLossMutation, CreditLossQuery
 from .models import Category, AuthUser, Pricetype, Discount
 from tradeTools.schemes.jwtAuth import JwtAuth
 from tradeTools.schemes.product import ProductMutation, ProductQuery
@@ -187,6 +189,7 @@ class RootQuery(Query,
                 WarehouseQuery,
                 CreditQuery,
                 CreditDetailsQuery,
+                CreditLossQuery,
                 StatusQuery,
                 CreditTypeQuery,
                 CreditCommentQuery,
@@ -206,6 +209,7 @@ class RootMutation(Mutation,
                    DebitComplexMutation,
                    CreditMutation,
                    CreditDetailMutation,
+                   CreditLossMutation,
                    StatusMutation,
                    CreditTypeMutation,
                    CreditCommentMutation,

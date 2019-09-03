@@ -139,7 +139,6 @@ class DebitQuery(graphene.ObjectType):
         if search_text == "" or None:
             return Debit.objects.all().order_by('-debitid')
 
-
         products = Product.objects.filter(Q(title__icontains=search_text) | Q(description__icontains=search_text))
         product_details = Productdetails.objects.filter(Q(model__icontains=search_text))
         product_comments = Productcomment.objects.filter(Q(comment__icontains=search_text))
