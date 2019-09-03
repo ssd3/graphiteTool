@@ -141,6 +141,21 @@ def create_creditdetail(info, data):
     creditdetail.save()
     return creditdetail
 
+def create_creditdetails(info, data):
+    creditdetails = []
+    for creditdetail in data:
+        creditdetail = Creditdetails(creditid=Credit.objects.get(pk=creditdetail.get('creditid')),
+                                     productid=Product.objects.get(pk=creditdetail.get('productid')),
+                                     price=creditdetail.get('price', 0.00),
+                                     qty=creditdetail.get('qty', 0.00),
+                                     pricetypeid=Pricetype.objects.get(pk=creditdetail.get('pricetypeid')),
+                                     userid=AuthUser.objects.get(pk=info.context.user.id),
+                                     created=timezone.now())
+
+        creditdetail.save()
+        creditdetails.append(creditdetail)
+    return creditdetails
+
 
 def update_creditdetail(data):
     creditdetail = Creditdetails.objects.get(pk=data.get('creditdetailid'))

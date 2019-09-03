@@ -7,6 +7,7 @@ from graphene import relay
 # from graphql_extensions.auth.decorators import login_required
 from graphql_jwt.decorators import login_required
 
+from tradeTools.schemes.creditComplex import CreditComplexMutation
 from tradeTools.schemes.creditLoss import CreditLossMutation, CreditLossQuery
 from .models import Category, AuthUser, Pricetype, Discount
 from tradeTools.schemes.jwtAuth import JwtAuth
@@ -210,6 +211,7 @@ class RootMutation(Mutation,
                    CreditMutation,
                    CreditDetailMutation,
                    CreditLossMutation,
+                   CreditComplexMutation,
                    StatusMutation,
                    CreditTypeMutation,
                    CreditCommentMutation,
