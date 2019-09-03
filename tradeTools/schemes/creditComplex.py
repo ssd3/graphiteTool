@@ -1,3 +1,5 @@
+import json
+
 import graphene
 
 from tradeTools.libs.common_db import *
@@ -11,8 +13,8 @@ from tradeTools.schemes.creditLoss import CreditLossType
 class CreditInput(graphene.InputObjectType):
     credittypeid = graphene.Int(required=True)
     buyerid = graphene.Int(required=True)
-    fromwarehouseid = graphene.Int()
-    towarehouseid = graphene.Int()
+    fromwarehouseid = graphene.Int(required=True)
+    towarehouseid = graphene.Int(required=True)
     sent = graphene.DateTime()
     received = graphene.DateTime()
     tracknumber = graphene.String()
@@ -40,18 +42,18 @@ class CreditDetailsInput(graphene.InputObjectType):
 
 
 class CreditCommentInput(graphene.InputObjectType):
-    comment = graphene.String(required=True)
+    comment = graphene.String()
 
 
 class CreateCreditComplex(graphene.Mutation):
     class Arguments:
         credit_data = CreditInput(required=True)
-        creditloss_data = CreditLossesInput(required=True)
         creditdetails_data = CreditDetailsInput(required=True)
+        creditloss_data = CreditLossesInput()
         creditcomment_data = CreditCommentInput()
 
     credit = graphene.Field(CreditType)
-    creditloss = graphene.List(CreditLossType)
+    creditlosses = graphene.List(CreditLossType)
     creditdetails = graphene.List(CreditDetailsType)
     creditcomment = graphene.Field(CreditCommentType)
 
@@ -63,12 +65,15 @@ class CreateCreditComplex(graphene.Mutation):
         creditcomment_data = delete_none_keys(kwargs.get("creditcomment_data"))
 
         credit = create_credit(info, credit_data)
-        creditlosses = create_creditlosses(info, creditloss_data)
-        creditdetails = create_productdetails(info, creditdetails_data)
-        creditcomment = create_creditcomment(info, creditcomment_data)
+        creditlosses = create_creditlosses(info, creditloss_data.creditlosses, credit)
+        creditdetails = create_creditdetails(info, creditdetails_data.creditdetails, credit)
+
+        creditcomment = None
+        if len(creditcomment_data) > 0:
+            creditcomment = create_creditcomment(info, creditcomment_data, credit)
 
         return CreateCreditComplex(credit=credit,
-                                   creditloss=creditlosses,
+                                   creditlosses=creditlosses,
                                    creditdetails=creditdetails,
                                    creditcomment=creditcomment)
 

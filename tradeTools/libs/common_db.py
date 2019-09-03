@@ -141,10 +141,11 @@ def create_creditdetail(info, data):
     creditdetail.save()
     return creditdetail
 
-def create_creditdetails(info, data):
+
+def create_creditdetails(info, data, credit):
     creditdetails = []
     for creditdetail in data:
-        creditdetail = Creditdetails(creditid=Credit.objects.get(pk=creditdetail.get('creditid')),
+        creditdetail = Creditdetails(creditid=credit,
                                      productid=Product.objects.get(pk=creditdetail.get('productid')),
                                      price=creditdetail.get('price', 0.00),
                                      qty=creditdetail.get('qty', 0.00),
@@ -212,8 +213,14 @@ def update_credittype(data):
     return credittype
 
 
-def create_creditcomment(info, data):
-    creditcomment = Creditcomment(creditid=Credit.objects.get(pk=data.get('creditid')),
+def create_creditcomment(info, data, credit=None):
+    creditid = None
+    if credit is None:
+        creditid = Credit.objects.get(pk=data.get('creditid'))
+    else:
+        creditid = credit
+
+    creditcomment = Creditcomment(creditid=creditid,
                                   comment=data.get('comment'),
                                   userid=AuthUser.objects.get(pk=info.context.user.id),
                                   created=timezone.now())
@@ -257,10 +264,10 @@ def create_creditloss(info, data):
     return creditloss
 
 
-def create_creditlosses(info, data):
+def create_creditlosses(info, data, credit):
     creditlosses = []
     for creditloss in data:
-        tmp_creditloss = Creditloss(creditid=Credit.objects.get(pk=creditloss.get('creditid')),
+        tmp_creditloss = Creditloss(creditid=credit,
                                     losstypeid=Losstype.objects.get(pk=creditloss.get('losstypeid')),
                                     rate=creditloss.get('rate'),
                                     notes=creditloss.get('notes'),
