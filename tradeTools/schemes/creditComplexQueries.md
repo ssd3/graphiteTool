@@ -56,13 +56,29 @@ mutation CREATE_CREDIT_COMPLEX
     }
     creditdetails {
       creditdetailsid
+      debit: debitid {
+        debitid
+        qty: qty
+        price: price
+        pricetype: pricetypeid {
+          pricetypeid
+          title
+          ratio
+        }
+        discount: discountid {
+          discountid
+          title
+          rate
+          units
+        }
+      }
       product: productid {
         productid
         title
       }
-      creditprice: price
-      creditqty: qty
-      creditpricetype: pricetypeid {
+      price: price
+      qty: qty
+      pricetype: pricetypeid {
         pricetypeid
         title
         ratio
@@ -98,13 +114,15 @@ mutation CREATE_CREDIT_COMPLEX
   ],
   "creditdetails": [
     {
-      "productid": 71,
+      "debitid": 62,
+      "productid": 89,
       "price": 10.2,
       "qty": 1.0,
       "pricetypeid": 1
     },
     {
-      "productid": 72,
+      "debitid": 65,
+      "productid": 92,
       "price": 10.2,
       "qty": 1.0,
       "pricetypeid": 1

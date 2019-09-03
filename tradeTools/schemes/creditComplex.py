@@ -31,6 +31,7 @@ class CreditLossesInput(graphene.InputObjectType):
 
 
 class CreditDetailInput(graphene.InputObjectType):
+    debitid = graphene.Int(required=True)
     productid = graphene.Int(required=True)
     price = graphene.Decimal(required=True)
     qty = graphene.Decimal(required=True)

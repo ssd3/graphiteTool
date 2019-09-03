@@ -12,6 +12,7 @@ class CreateCreditDetail(graphene.Mutation):
     class Arguments:
         creditid = graphene.Int(required=True)
         productid = graphene.Int(required=True)
+        debitid = graphene.Int(required=True)
         price = graphene.Decimal(required=True)
         qty = graphene.Decimal(required=True)
         pricetypeid = graphene.Int(required=True)
@@ -28,6 +29,7 @@ class UpdateCreditDetail(graphene.Mutation):
         creditdetailid = graphene.Int(required=True)
         creditid = graphene.Int()
         productid = graphene.Int()
+        debitid = graphene.Int(required=True)
         price = graphene.Decimal()
         qty = graphene.Decimal()
         pricetypeid = graphene.Int()

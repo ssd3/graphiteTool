@@ -146,6 +146,7 @@ def create_creditdetails(info, data, credit):
     creditdetails = []
     for creditdetail in data:
         creditdetail = Creditdetails(creditid=credit,
+                                     debitid=Debit.objects.get(pk=creditdetail.get('debitid')),
                                      productid=Product.objects.get(pk=creditdetail.get('productid')),
                                      price=creditdetail.get('price', 0.00),
                                      qty=creditdetail.get('qty', 0.00),
@@ -160,6 +161,7 @@ def create_creditdetails(info, data, credit):
 
 def update_creditdetail(data):
     creditdetail = Creditdetails.objects.get(pk=data.get('creditdetailid'))
+    creditdetail.debitid = Debit.objects.get(pk=data.get('debitid')),
     creditdetail.creditid = Credit.objects.get(pk=data.get('creditid'))
     creditdetail.productid = Product.objects.get(pk=data.get('productid'))
     creditdetail.price = data.get('price')
