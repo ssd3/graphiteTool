@@ -117,13 +117,15 @@ def create_credit(info, data):
     return credit
 
 
-def update_credit(data):
+def update_credit(info, data):
     credit = Credit.objects.get(pk=data.get('creditid'))
     credit.credittypeid = Credittype.objects.get(pk=data.get('credittypeid'))
     credit.buyerid = AuthUser.objects.get(pk=data.get('buyerid')).id
     credit.fromwarehouseid = Warehouse.objects.get(pk=data.get('fromwarehouseid')).warehouseid
     credit.towarehouseid = Warehouse.objects.get(pk=data.get('towarehouseid')).warehouseid
     credit.tracknumber = data.get('tracknumber')
+    credit.sent = data.get("sent")
+    credit.received = data.get("received")
 
     credit.save()
     return credit
@@ -159,9 +161,24 @@ def create_creditdetails(info, data, credit):
     return creditdetails
 
 
+def update_creditdetails(info, data, credit):
+    creditdetails = []
+    for creditdetail in data:
+        tmp_creditdetail = None
+        if 'creditdetailsid' in creditdetail:
+            tmp_creditdetail = Creditdetails.objects.get(pk=creditdetail.get('creditdetailsid'))
+        if tmp_creditdetail is None:
+            creditdetail.creditid = credit.creditid
+            tmp_creditdetail = create_creditdetail(info, creditdetail)
+        else:
+            tmp_creditdetail = update_creditdetail(creditdetail)
+        creditdetails.append(tmp_creditdetail)
+    return creditdetails
+
+
 def update_creditdetail(data):
-    creditdetail = Creditdetails.objects.get(pk=data.get('creditdetailid'))
-    creditdetail.debitid = Debit.objects.get(pk=data.get('debitid')),
+    creditdetail = Creditdetails.objects.get(pk=data.get('creditdetailsid'))
+    creditdetail.debitid = Debit.objects.get(pk=data.get('debitid'))
     creditdetail.creditid = Credit.objects.get(pk=data.get('creditid'))
     creditdetail.productid = Product.objects.get(pk=data.get('productid'))
     creditdetail.price = data.get('price')
@@ -232,7 +249,6 @@ def create_creditcomment(info, data, credit=None):
 
 def update_creditcomment(data):
     creditcomment = Creditcomment.objects.get(pk=data.get('creditcommentid'))
-    creditcomment.creditid = Credit.objects.get(pk=data.get('creditid'))
     creditcomment.comment = data.get('comment')
 
     creditcomment.save()
@@ -276,6 +292,21 @@ def create_creditlosses(info, data, credit):
                                     userid=AuthUser.objects.get(pk=info.context.user.id),
                                     created=timezone.now())
         tmp_creditloss.save()
+        creditlosses.append(tmp_creditloss)
+    return creditlosses
+
+
+def update_creditlosses(info, data, credit):
+    creditlosses = []
+    for creditloss in data:
+        tmp_creditloss = None
+        if 'creditlossid' in creditloss:
+            tmp_creditloss = Creditloss.objects.get(pk=creditloss.get('creditlossid'))
+        if tmp_creditloss is None:
+            creditloss.creditid = credit.creditid
+            tmp_creditloss = create_creditloss(info, creditloss)
+        else:
+            tmp_creditloss = update_creditloss(creditloss)
         creditlosses.append(tmp_creditloss)
     return creditlosses
 
