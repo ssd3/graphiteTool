@@ -18,7 +18,7 @@ class Audit(models.Model):
     created = models.DateTimeField(db_column='Created')  # Field name made lowercase.
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'Audit'
 
 
@@ -29,7 +29,7 @@ class Category(models.Model):
     created = models.DateTimeField(db_column='Created')  # Field name made lowercase.
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'Category'
 
 
@@ -59,7 +59,7 @@ class Creditcomment(models.Model):
     created = models.DateTimeField(db_column='Created')  # Field name made lowercase.
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'CreditComment'
 
 
@@ -78,7 +78,7 @@ class Debit(models.Model):
     created = models.DateTimeField(db_column='Created')  # Field name made lowercase.
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'Debit'
         ordering = ['-debitid']
 
@@ -121,7 +121,7 @@ class Credittype(models.Model):
     created = models.DateTimeField(db_column='Created')  # Field name made lowercase.
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'CreditType'
 
 
@@ -145,7 +145,7 @@ class Losstype(models.Model):
     created = models.DateTimeField(db_column='Created')  # Field name made lowercase.
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'LossType'
 
 
@@ -158,7 +158,7 @@ class Pricetype(models.Model):
     created = models.DateTimeField(db_column='Created')  # Field name made lowercase.
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'PriceType'
 
 
@@ -171,7 +171,7 @@ class Product(models.Model):
     created = models.DateTimeField(db_column='Created')  # Field name made lowercase.
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'Product'
 
 
@@ -183,7 +183,7 @@ class Productcomment(models.Model):
     created = models.DateTimeField(db_column='Created')  # Field name made lowercase.
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'ProductComment'
 
 
@@ -229,7 +229,7 @@ class Warehouse(models.Model):
     out = models.BooleanField(db_column='Out')  # Field name made lowercase.
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'Warehouse'
 
 

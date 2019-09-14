@@ -297,6 +297,8 @@ def create_creditlosses(info, data, credit):
 
 
 def update_creditlosses(info, data, credit):
+    # TODO select all creditloss records by credit.creditid and not in creditloss.creditlossid
+    # TODO then delete each of records
     creditlosses = []
     for creditloss in data:
         tmp_creditloss = None
