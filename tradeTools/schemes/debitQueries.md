@@ -333,6 +333,12 @@ query getDebits
         }        
       }
     }
+    pageInfo {
+      hasNextPage
+      hasPreviousPage
+      startCursor
+      endCursor
+    }
   }
 }
 ```
