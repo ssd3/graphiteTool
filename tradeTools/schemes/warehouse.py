@@ -24,8 +24,8 @@ class CreateWarehouse(graphene.Mutation):
         title = graphene.String(required=True)
         description = graphene.String()
         active = graphene.Boolean(required=True)
-        in_field = graphene.Boolean(required=True)
-        out = graphene.Boolean(required=True)
+        incoming = graphene.Boolean(required=True)
+        outgoing = graphene.Boolean(required=True)
 
     warehouse = graphene.Field(WarehouseType)
 
@@ -38,8 +38,8 @@ class CreateWarehouse(graphene.Mutation):
                               active=kwargs.get("active"),
                               userid=user_instance,
                               created=current_time,
-                              in_field=kwargs.get("in_field"),
-                              out=kwargs.get("out"))
+                              incoming=kwargs.get("incoming"),
+                              outgoing=kwargs.get("outgoing"))
         warehouse.save()
         return CreateWarehouse(warehouse=warehouse)
 
@@ -60,8 +60,8 @@ class UpdateWarehouse(graphene.Mutation):
         warehouse.title = kwargs.get("title")
         warehouse.description = kwargs.get("description", None)
         warehouse.active = kwargs.get("active")
-        warehouse.in_field = kwargs.get("in_field")
-        warehouse.out = kwargs.get("out")
+        warehouse.incoming = kwargs.get("incoming")
+        warehouse.outgoing = kwargs.get("outgoing")
         warehouse.save()
         return UpdateWarehouse(warehouse=warehouse)
 
@@ -74,28 +74,28 @@ class WarehouseMutation(graphene.ObjectType):
 class WarehouseQuery(graphene.ObjectType):
     warehouses = DjangoFilterConnectionField(WarehouseType,
                                              active=graphene.Boolean(),
-                                             in_field=graphene.Boolean(),
-                                             out=graphene.Boolean())
+                                             incoming=graphene.Boolean(),
+                                             outgoing=graphene.Boolean())
 
     warehouse = graphene.List(WarehouseType,
                               warehouseid=graphene.Int(),
                               title=graphene.String(),
                               active=graphene.Boolean(),
-                              in_field=graphene.Boolean(),
-                              out=graphene.Boolean())
+                              incoming=graphene.Boolean(),
+                              outgoing=graphene.Boolean())
 
     def resolve_warehouses(self, info, **kwargs):
         active = kwargs.get('active')
-        in_field = kwargs.get('in_field')
-        out = kwargs.get('out')
+        incoming = kwargs.get('incoming')
+        outgoing = kwargs.get('outgoing')
 
-        if active is True and in_field is True:
-            return Warehouse.objects.filter(Q(active=active, in_field=in_field))
+        if active is True and incoming is True:
+            return Warehouse.objects.filter(Q(active=active, incoming=incoming))
 
-        if active is True and out is True:
-            return Warehouse.objects.filter(Q(active=active, out=out))
+        if active is True and outgoing is True:
+            return Warehouse.objects.filter(Q(active=active, outgoing=outgoing))
 
-        if None in (active, in_field, out):
+        if None in (active, incoming, outgoing):
             return Warehouse.objects.all()
 
     def resolve_warehouse(self, info, **kwargs):
