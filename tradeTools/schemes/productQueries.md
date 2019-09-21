@@ -1,18 +1,68 @@
 # Get products by UserID with totalCount
 ```
-query {
-    productsByuser {   
-    totalCount
-    edges {      
-      node {                
-        title
-        userid
-        {
-            id
+query GET_PRODUCTS_BY_USER 
+(
+  $userid: Int!
+)
+{
+  productsByUser
+  (
+    userid: $userid
+  ) 
+  {
+		edges {
+      node {
+        productid
+        debit: debitid {
+          debitid
         }
+        category: categoryid {
+          categoryid
+          title
+        }
+        title
+        qty
+        price
+        price2
+        price3
+        pricetype: pricetypeid {
+          pricetypeid
+          title
+          ratio
+        }
+        discount: discountid {
+          discountid
+          title
+          rate
+          units
+        }
+        status: statusid {
+          statusid
+          title
+          color
+        }
+        description
+        created
+        user: userid {
+          id
+          username
+        }        
       }
     }
+		totalCount
+    pageInfo {
+      hasNextPage
+      hasPreviousPage
+      startCursor
+      endCursor
+    }
   }
+}
+```
+# Get products by UserID with totalCount variables
+```
+{
+	"userid": 1
 }
 ```
 #Products get
@@ -44,7 +94,6 @@ query GET_PRODUCTS {
   }
 }
 ```
-
 # Get products with totalCount
 ```
 query {
@@ -62,7 +111,6 @@ query {
   }
 }
 ```
-
 # Product get by id
 ```
 query GET_PRODUCT($productid: Int!) {
@@ -92,29 +140,88 @@ query GET_PRODUCT($productid: Int!) {
 ```
 mutation CREATE_PRODUCT
 (
+  $debitid: Int!,
   $categoryid: Int!,
   $title: String!,
+  $qty: Decimal!,
+  $price: Decimal!,
+  $price2: Decimal!,
+  $price3: Decimal!,
+  $pricetypeid: Int!,
+  $discountid: Int!,
+  $statusid: Int!,
   $description: String
 )
 {
-  createProduct 
+  createProduct
   (
+    debitid: $debitid,
   	categoryid: $categoryid,
     title: $title,
+    qty: $qty,
+    price: $price,
+    price2: $price2,
+    price3: $price3,
+    pricetypeid: $pricetypeid,
+    discountid: $discountid,
+    statusid: $statusid,
     description: $description
   )
   {
     product {
       productid
+      debit: debitid {
+        debitid
+      }
       category: categoryid {
         categoryid
         title
       }
       title
+      qty
+      price
+      price2
+      price3
+      pricetype: pricetypeid {
+        pricetypeid
+        title
+        ratio
+      }
+      discount: discountid {
+        discountid
+        title
+        rate
+        units
+      }
+      status: statusid {
+        statusid
+        title
+        color
+      }
       description
       created
+      user: userid {
+        id
+        username
+      }
     }
   }
+}
+```
+# Create product variables
+```
+{
+  "debitid": 4,
+  "categoryid": 1,
+  "title": "Product-3 0921",
+  "qty": 10,
+  "price": 0,
+  "price2": 0,
+  "price3": 0,
+  "pricetypeid": 1,
+  "discountid": 1,
+  "statusid": 1,
+  "description": null
 }
 ```
 
@@ -141,39 +248,91 @@ query {
 mutation UPDATE_PRODUCT
 (
   $productid: Int!,
+  $debitid: Int!,
   $categoryid: Int!,
   $title: String!,
+  $qty: Decimal!,
+  $price: Decimal!,
+  $price2: Decimal!,
+  $price3: Decimal!,
+  $pricetypeid: Int!,
+  $discountid: Int!,
+  $statusid: Int!,
   $description: String
 )
 {
-  updateProduct 
+  updateProduct
   (
     productid: $productid,
+    debitid: $debitid,
   	categoryid: $categoryid,
     title: $title,
+    qty: $qty,
+    price: $price,
+    price2: $price2,
+    price3: $price3,
+    pricetypeid: $pricetypeid,
+    discountid: $discountid,
+    statusid: $statusid,
     description: $description
   )
   {
     product {
       productid
+      debit: debitid {
+        debitid
+      }
       category: categoryid {
         categoryid
         title
       }
       title
+      qty
+      price
+      price2
+      price3
+      pricetype: pricetypeid {
+        pricetypeid
+        title
+        ratio
+      }
+      discount: discountid {
+        discountid
+        title
+        rate
+        units
+      }
+      status: statusid {
+        statusid
+        title
+        color
+      }
       description
       created
+      user: userid {
+        id
+        username
+      }
     }
   }
 }
+
 ```
 # Product update variables
 ```
 {
-  "productid": 13,
-  "categoryid": 2,
-  "title": "Product 2 Updated",
-  "description": "Product 2 description"
+  "productid": 3,
+  "debitid": 4,
+  "categoryid": 1,
+  "title": "Product-3 0921",
+  "qty": 10,
+  "price": 0,
+  "price2": 0,
+  "price3": 0,
+  "pricetypeid": 1,
+  "discountid": 1,
+  "statusid": 1,
+  "description": null
 }
 ```
 
@@ -225,5 +384,72 @@ query getProductsByUserID($category_title: String){
 ```
 {
   "category_title": "categ"
+}
+```
+
+# Get product by debitid
+```
+query GET_PRODUCT_BY_DEBIT
+(
+  $debitid: Int!
+)
+{
+  productsByDebit
+  (
+    debitid: $debitid
+  ) {
+    edges {
+      node {
+        productid
+        debit: debitid {
+          debitid
+        }
+        category: categoryid {
+          categoryid
+          title
+        }
+        title
+        qty
+        price
+        price2
+        price3
+        pricetype: pricetypeid {
+          pricetypeid
+          title
+          ratio
+        }
+        discount: discountid {
+          discountid
+          title
+          rate
+          units
+        }
+        status: statusid {
+          statusid
+          title
+          color
+        }
+        description
+        created
+        user: userid {
+          id
+          username
+        }        
+      }
+    }
+		totalCount
+    pageInfo {
+      hasNextPage
+      hasPreviousPage
+      startCursor
+      endCursor
+    }
+  }
+}
+```
+# Get product by debitid variables
+```
+{
+  "debitid": 4
 }
 ```

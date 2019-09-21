@@ -2,30 +2,38 @@ import graphene
 from graphene_django import DjangoObjectType
 from graphene import relay
 from tradeTools.libs.common_db import *
+from graphene_django.filter import DjangoFilterConnectionField
 from django.db.models import Q
+from tradeTools.libs.total_count import ExtendedConnection
 
 
 class ProductType(DjangoObjectType):
     class Meta:
         model = Product
-        interface = (relay.Node, )
+        filter_fields = {
+            'title': ['exact', 'icontains']
+        }
+        interfaces = (relay.Node, )
+        connection_class = ExtendedConnection
 
 
 class ProductConnection(relay.Connection):
     class Meta:
         node = ProductType
 
-    total_count = graphene.Int()
-
-    @staticmethod
-    def resolve_total_count(self, info, **kwargs):
-        return self.iterable.count()
-
 
 class CreateProduct(graphene.Mutation):
     class Arguments:
+        debitid = graphene.Int(required=True)
         categoryid = graphene.Int(required=True)
         title = graphene.String(required=True)
+        qty = graphene.Decimal(required=True)
+        price = graphene.Decimal(required=True)
+        price2 = graphene.Decimal(required=True)
+        price3 = graphene.Decimal(required=True)
+        pricetypeid = graphene.Int(required=True)
+        discountid = graphene.Int(required=True)
+        statusid = graphene.Int(required=True)
         description = graphene.String()
 
     product = graphene.Field(ProductType)
@@ -39,8 +47,16 @@ class CreateProduct(graphene.Mutation):
 class UpdateProduct(graphene.Mutation):
     class Arguments:
         productid = graphene.Int(required=True)
+        debitid = graphene.Int(required=True)
         categoryid = graphene.Int(required=True)
         title = graphene.String(required=True)
+        qty = graphene.Decimal(required=True)
+        price = graphene.Decimal(required=True)
+        price2 = graphene.Decimal(required=True)
+        price3 = graphene.Decimal(required=True)
+        pricetypeid = graphene.Int(required=True)
+        discountid = graphene.Int(required=True)
+        statusid = graphene.Int(required=True)
         description = graphene.String()
 
     product = graphene.Field(ProductType)
@@ -57,18 +73,26 @@ class ProductMutation(graphene.ObjectType):
 
 
 class ProductQuery(graphene.ObjectType):
-    products_bycategory_title = relay.ConnectionField(ProductConnection,
-                                                      category_title=graphene.String())
+    products_bycategory_title = DjangoFilterConnectionField(ProductType,
+                                                            category_title=graphene.String())
 
-    products_byuser = relay.ConnectionField(ProductConnection,
-                                            category_title=graphene.String())
+    products = DjangoFilterConnectionField(ProductType)
 
-    products = relay.ConnectionField(ProductConnection)
     product = graphene.List(ProductType,
                             productid=graphene.Int(),
                             title=graphene.String(),
                             userid=graphene.Int(),
                             page=graphene.Int())
+
+    products_by_debit = DjangoFilterConnectionField(ProductType, debitid=graphene.Int())
+
+    products_by_user = DjangoFilterConnectionField(ProductType, userid=graphene.Int())
+
+    def resolve_products_by_user(self, info, **kwargs):
+        return Product.objects.filter(userid=AuthUser.objects.get(pk=kwargs.get('userid')))
+
+    def resolve_products_by_debit(self, info, **kwargs):
+        return Product.objects.filter(debitid=Debit.objects.get(pk=kwargs.get('debitid')))
 
     def resolve_products(root, info, **kwargs):
         return Product.objects.all().order_by('productid')
@@ -86,20 +110,6 @@ class ProductQuery(graphene.ObjectType):
             categories_ids.append(category.categoryid)
 
         return Product.objects.filter(categoryid__in=categories_ids)
-
-    def resolve_products_byuser(self, info, **kwargs):
-        category_title = kwargs.get('category_title')
-
-        if category_title is not None:
-            categories = Category.objects.filter(Q(title__icontains=category_title))
-
-            categories_ids = []
-            for category in categories:
-                categories_ids.append(category.categoryid)
-
-            return Product.objects.filter(userid=info.context.user.id, categoryid__in=categories_ids)
-        else:
-            return Product.objects.filter(userid=info.context.user.id)
 
     def resolve_product(self, info, **kwargs):
         productid = kwargs.get('productid')
@@ -123,4 +133,3 @@ class ProductQuery(graphene.ObjectType):
             return Product.objects.all()[products_from:products_to]
 
         return None
-

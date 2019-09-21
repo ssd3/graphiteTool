@@ -3,8 +3,16 @@ from tradeTools.models import *
 
 
 def create_product(info, data):
-    product = Product(categoryid=Category.objects.get(pk=data.get("categoryid")),
+    product = Product(debitid=Debit.objects.get(pk=data.get("debitid")),
+                      categoryid=Category.objects.get(pk=data.get("categoryid")),
                       title=data.get("title"),
+                      qty=data.get("qty", 0.0),
+                      price=data.get("price", 0.0),
+                      price2=data.get("price2", 0.0),
+                      price3=data.get("price3", 0.0),
+                      pricetypeid=Pricetype.objects.get(pk=data.get("pricetypeid")),
+                      discountid=Discount.objects.get(pk=data.get("discountid")),
+                      statusid=Status.objects.get(pk=data.get("statusid")),
                       description=data.get("description", None),
                       userid=AuthUser.objects.get(pk=info.context.user.id),
                       created=timezone.now())
@@ -14,8 +22,16 @@ def create_product(info, data):
 
 def update_product(data):
     product = Product.objects.get(pk=data.get("productid"))
+    product.debitid = Debit.objects.get(pk=data.get("debitid"))
     product.categoryid = Category.objects.get(pk=data.get("categoryid"))
     product.title = data.get("title")
+    product.qty = data.get("qty", 0.0)
+    product.price = data.get("price", 0.0)
+    product.price2 = data.get("price2", 0.0)
+    product.price3 = data.get("price3", 0.0)
+    product.pricetypeid = Pricetype.objects.get(pk=data.get("pricetypeid"))
+    product.discountid = Discount.objects.get(pk=data.get("discountid"))
+    product.statusid = Status.objects.get(pk=data.get("statusid"))
     product.description = data.get("description", None)
 
     product.save()

@@ -174,6 +174,7 @@ class Product(models.Model):
     class Meta:
         managed = True
         db_table = 'Product'
+        ordering = ['-productid']
 
 
 class Productcomment(models.Model):
@@ -186,6 +187,7 @@ class Productcomment(models.Model):
     class Meta:
         managed = True
         db_table = 'ProductComment'
+        ordering = ['-productcommentid']
 
 
 class Productdetails(models.Model):
