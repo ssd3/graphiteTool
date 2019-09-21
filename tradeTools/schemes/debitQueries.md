@@ -1,11 +1,25 @@
 # Debits get (edges/nodes)
 ```
-query getDebits($first: Int, $last: Int, $before: String, $after: String, 
-  $qty_expr: String, $price_expr: String, $created_expr: String,
-  $debitid: Int, $warehouseid: Int, $productid: Int, $qty: Decimal, $price: Decimal, $pricetypeid: Int, $discountid: Int, $tracknumber: String, $statusid: Int, $notes: String, $userid: Int, $created: DateTime) {
-  debits(first: $first, last: $last, before: $before, after: $after, 
-    qtyExpr: $qty_expr, priceExpr: $price_expr, createdExpr: $created_expr,
-    debitid: $debitid, warehouseid: $warehouseid, productid: $productid, qty: $qty, price: $price, pricetypeid: $pricetypeid, discountid: $discountid, tracknumber: $tracknumber, statusid: $statusid, notes: $notes, userid: $userid, created: $created) {
+query getDebits
+(
+  $first: Int, 
+  $last: Int, 
+  $before: String, 
+  $after: String, 
+  $warehouseid: ID, 
+  $tracknumber: String,
+  $notes: String
+) {
+  debits(
+    first: $first, 
+    last: $last, 
+    before: $before, 
+    after: $after, 
+    warehouseid: $warehouseid, 
+    tracknumber: $tracknumber,
+    notes_Icontains: $notes
+	) 
+  {
     edges {
       cursor
       node {
@@ -14,73 +28,75 @@ query getDebits($first: Int, $last: Int, $before: String, $after: String,
           warehouseid
           title
         }
-        product: productid {
-          productid
-          title
+        tracknumber
+        notes
+        user: userid {
+          id
+          username
         }
-        qty
-        price
         created
-      }
-    }
+        products: productSet {
+          productid
+          category: categoryid {
+            categoryid
+            title
+          }
+          title
+          qty
+          price
+          price2
+          price3
+          status: statusid {
+            statusid
+            title
+            color
+          }
+          description
+          pricetype: pricetypeid {
+            pricetypeid
+            title
+            ratio
+          }
+          discount: discountid {
+            discountid
+            title
+          }
+        }
+     	}
+  	}
     pageInfo {
       hasNextPage
       hasPreviousPage
       startCursor
       endCursor
     }
-  }
+	} 
 }
-
 ```
 
 # Debits get variables
 ```
 {
-  "first": null,
-  "last": null,
-  "before": null,
-  "after": null,
-  "qty_expr": null,
-  "debitid": null,
-  "warehouseid": 1,
-  "productid": null,
-  "qty": null,
-  "qty_expr": null,
-  "price_expr": null,
-  "price": null,
-  "pricetypeid": null,
-	"discountid": null,
-	"tracknumber": null,
-	"statusid": null,
-	"notes": null,
-	"userid": null,
-	"created": null
+  "warehouseid": 2,
+  "tracknumber": "TR003-0921",
+  "notes": "Notes"
 }
 ```
 
 # Debit simple mutation create
 ```
-mutation Mutation($warehouseid: Int!,
-                    $productid: Int!,
-  					$qty: Decimal!,
-  					$price: Decimal!,
-  					$pricetypeid: Int!,
-  					$discountid: Int!,
-  					$tracknumber: String!,
-  					$statusid: Int!,
-  					$notes: String)
+mutation createDebit
+(
+  $warehouseid: Int!,
+  $tracknumber: String!,
+  $notes: String
+)
 {
-  result: createDebit(
+  result: createDebit
+  (
 		warehouseid: $warehouseid,
-		productid: $productid,
-  	    qty: $qty,
-  	    price: $price,
-  	    pricetypeid: $pricetypeid,
-  	    discountid: $discountid,
-  	    tracknumber: $tracknumber,
-  	    statusid: $statusid,
-  	    notes: $notes
+    tracknumber: $tracknumber,
+    notes: $notes
   )
   {
     debit{
@@ -89,51 +105,50 @@ mutation Mutation($warehouseid: Int!,
         warehouseid
         title
       }
-      product: productid {
-        productid
-        title
-      }
-      qty
-      price
-      pricetype: pricetypeid {
-        pricetypeid
-        title
-      }
-      discount: discountid {
-        discountid
-        title
-        value
-        units
-      }
       tracknumber
-      status: statusid {
-        statusid
-        title
-        value
-      }
       notes
       user: userid {
         id
         username
       }
       created
+      products: productSet {
+        productid
+        category: categoryid {
+          categoryid
+          title
+        }
+        title
+        qty
+        price
+        price2
+        price3
+        status: statusid {
+          statusid
+          title
+          color
+        }
+        description
+        pricetype: pricetypeid {
+          pricetypeid
+          title
+          ratio
+        }
+        discount: discountid {
+          discountid
+          title
+        }
+      }
     }
   }
 }
-
 ```
 
 # Debit simple mutation variables
 ```
 {
-  "warehouseid": 1,
-  "productid": 24,
-  "qty": 1.0,
-  "price": 10.0,
-  "pricetypeid": 1,
-  "discountid": 1,
-  "tracknumber": "TR001QWE121111345",
-  "statusid": 1,
+  "warehouseid": 2,
+  "tracknumber": "TR001-0921",
   "notes": null
 }
 ```
@@ -143,155 +158,177 @@ mutation Mutation($warehouseid: Int!,
 ```
 query getDebitById($debitid: Int!)
 {
-  debit(debitid: $debitid){
-    debitid
-    warehouseid{
-      title
+  debit(debitid: $debitid)
+  {
+  	debitid
+    warehouse: warehouseid {
       warehouseid
+      title
     }
-    productid{
+    tracknumber
+    notes
+    user: userid {
+      id
+      username
+    }
+    created
+    products: productSet {
       productid
-      categoryid{
+      category: categoryid {
         categoryid
         title
       }
       title
+      qty
+      price
+      price2
+      price3
+      status: statusid {
+        statusid
+        title
+        color
+      }
+      description
+      pricetype: pricetypeid {
+      	pricetypeid
+        title
+        ratio
+      }
+      discount: discountid {
+        discountid
+        title
+      }
     }
-    qty
-    price
-    pricetypeid{
-      pricetypeid
-      title
-      ratio
-    }
-    discountid{
-      discountid
-      title
-      value
-      units
-    }
-    tracknumber
-    statusid{
-      statusid
-      title
-      value
-    }
-    notes
-    created
   }
 }
-
+```
+# Debit get by id variables
+```
 variables:
 {
-  "debitid": 17
+  "debitid": 4
 }
 ```
 
 # Debit simple mutation update
 ```
-mutation Mutation($debitid: Int!,
-  					$warehouseid: Int!,
-            $productid: Int!,
-  					$qty: Decimal!,
-  					$price: Decimal!,
-  					$pricetypeid: Int!,
-  					$discountid: Int!,
-  					$tracknumber: String!,
-  					$statusid: Int!,
-  					$notes: String)
+mutation updateDebit
+(
+  $debitid: Int!,
+  $warehouseid: Int!,
+	$tracknumber: String!,
+	$notes: String
+)
 {
-  result: updateDebit(
+	result: updateDebit(
     debitid: $debitid,
 		warehouseid: $warehouseid,
-		productid: $productid,
-  	    qty: $qty,
-  	    price: $price,
-  	    pricetypeid: $pricetypeid,
-  	    discountid: $discountid,
-  	    tracknumber: $tracknumber,
-  	    statusid: $statusid,
-  	    notes: $notes
+    tracknumber: $tracknumber,
+    notes: $notes
   )
   {
-    debit{
+		debit{
       debitid
       warehouse: warehouseid {
         warehouseid
         title
       }
-      product: productid {
-        productid
-        title
-      }
-      qty
-      price
-      pricetype: pricetypeid {
-        pricetypeid
-        title
-      }
-      discount: discountid {
-        discountid
-        title
-        value
-        units
-      }
       tracknumber
-      status: statusid {
-        statusid
-        title
-        value
-      }
       notes
       user: userid {
         id
         username
       }
       created
+      products: productSet {
+        productid
+        category: categoryid {
+          categoryid
+          title
+        }
+        title
+        qty
+        price
+        price2
+        price3
+        status: statusid {
+          statusid
+          title
+          color
+        }
+        description
+        pricetype: pricetypeid {
+          pricetypeid
+          title
+          ratio
+        }
+        discount: discountid {
+          discountid
+          title
+        }
+      }
     }
   }
 }
-
 ```
 
 # Debit simple mutation update variables
-
 ```
 {
-  "debitid": 21,
+  "debitid": 4,
   "warehouseid": 1,
-  "productid": 31,
-  "qty": 10.0,
-  "price": 100.0,
-  "pricetypeid": 1,
-  "discountid": 1,
-  "tracknumber": "TR001QWE1211113456",
-  "statusid": 1,
-  "notes": "update debit"
+  "tracknumber": "TR003-0921"
 }
 ```
 
 # Get debits by text (4 tables) with TotalCount
 ```
-query getDebits($search_text: String){  
+query getDebits
+(
+  $search_text: String
+)
+{  
   debitsBytext(searchText: $search_text){  
     totalCount
     edges{     
       node{        
-        debitid      
-        productid{
-          productid
+    		debitid
+        warehouse: warehouseid {
+          warehouseid
           title
-          productdetailsSet{
-            productid{
-              productid
-            }
-            model
+        }
+        tracknumber
+        notes
+        user: userid {
+          id
+          username
+        }
+        created
+        products: productSet {
+          productid
+          category: categoryid {
+            categoryid
+            title
           }
-          productcommentSet{
-            productid{
-              productid
-            }
-            comment            
+          title
+          qty
+          price
+          price2
+          price3
+          status: statusid {
+            statusid
+            title
+            color
+          }
+          description
+          pricetype: pricetypeid {
+            pricetypeid
+            title
+            ratio
+          }
+          discount: discountid {
+            discountid
+            title
           }
         }        
       }
@@ -303,12 +340,14 @@ query getDebits($search_text: String){
 # Variable for get debits by text (4 tables)
 ```
 {
-  "search_text": "Model" or "777" or "Product"
+  "search_text": "1"
 }
 ```
 
 
+```
 # Update Debit's StatusID 
+```
 ```
 mutation UpdateDebitStatusID($debitid: [Int]!, $statusid: Int!)
 {
@@ -323,34 +362,12 @@ mutation UpdateDebitStatusID($debitid: [Int]!, $statusid: Int!)
   }
 }
 ```
-
+```
 # Var upd debit's statusid
+```
 ```
 {
   "debitid": [2,6,8],
   "statusid": 2
-}
-```
-
-# Get debits by pager (4 tables)
-```
-query getDebits($search_text: String, $page_num: Int, $rows_count: Int){
-  debitsBytext(searchText: $search_text, pageNum: $page_num, rowsCount: $rows_count){
-    totalCount
-    edges{
-      node{
-        tracknumber
-      }
-    }    
-  }
-}
-```
-
-# Var
-```
-{
-  "search_text": "TRACK",
-  "page_num": 1,
-  "rows_count": 2
 }
 ```

@@ -13,8 +13,8 @@ class Audit(models.Model):
     tableid = models.SmallIntegerField(db_column='TableID')  # Field name made lowercase.
     actionid = models.SmallIntegerField(db_column='ActionID')  # Field name made lowercase.
     rowdata = models.TextField(db_column='RowData')  # Field name made lowercase. This field type is a guess.
-    chain = models.CharField(db_column='Chain', max_length=32, blank=True, null=True)  # Field name made lowercase.
-    userid = models.IntegerField(db_column='UserID')  # Field name made lowercase.
+    chain = models.CharField(db_column='Chain', max_length=32)  # Field name made lowercase.
+    userid = models.IntegerField(db_column='UserID', default=1)  # Field name made lowercase.
     created = models.DateTimeField(db_column='Created')  # Field name made lowercase.
 
     class Meta:
@@ -25,7 +25,7 @@ class Audit(models.Model):
 class Category(models.Model):
     categoryid = models.AutoField(db_column='CategoryID', primary_key=True)  # Field name made lowercase.
     title = models.CharField(db_column='Title', max_length=32)  # Field name made lowercase.
-    userid = models.ForeignKey('AuthUser', models.DO_NOTHING, db_column='UserID')  # Field name made lowercase.
+    userid = models.ForeignKey('AuthUser', models.DO_NOTHING, db_column='UserID', default=1)  # Field name made lowercase.
     created = models.DateTimeField(db_column='Created')  # Field name made lowercase.
 
     class Meta:
@@ -35,12 +35,12 @@ class Category(models.Model):
 
 class Credit(models.Model):
     creditid = models.BigAutoField(db_column='CreditID', primary_key=True)  # Field name made lowercase.
-    credittypeid = models.ForeignKey('Credittype', models.DO_NOTHING, db_column='CreditTypeID')  # Field name made lowercase.
-    buyerid = models.ForeignKey('AuthUser', models.DO_NOTHING, db_column='BuyerID', related_name='buyer_auth_user')  # Field name made lowercase.
-    fromwarehouseid = models.ForeignKey('Warehouse', models.DO_NOTHING, db_column='FromWarehouseID', related_name='from_warehouse_warehouse')  # Field name made lowercase.
-    userid = models.ForeignKey('AuthUser', models.DO_NOTHING, db_column='UserID', related_name='user_auth_user')  # Field name made lowercase.
+    credittypeid = models.ForeignKey('Credittype', models.DO_NOTHING, db_column='CreditTypeID', default=1)  # Field name made lowercase.
+    buyerid = models.IntegerField(db_column='BuyerID')  # Field name made lowercase.
+    fromwarehouseid = models.IntegerField(db_column='FromWarehouseID', blank=True, null=True)  # Field name made lowercase.
+    userid = models.ForeignKey('AuthUser', models.DO_NOTHING, db_column='UserID', default=1)  # Field name made lowercase.
     created = models.DateTimeField(db_column='Created')  # Field name made lowercase.
-    towarehouseid = models.ForeignKey('Warehouse', models.DO_NOTHING, db_column='ToWarehouseID', related_name='to_warehouse_warehouse')  # Field name made lowercase.
+    towarehouseid = models.IntegerField(db_column='ToWarehouseID', blank=True, null=True)  # Field name made lowercase.
     sent = models.DateTimeField(db_column='Sent', blank=True, null=True)  # Field name made lowercase.
     received = models.DateTimeField(db_column='Received', blank=True, null=True)  # Field name made lowercase.
     tracknumber = models.CharField(db_column='TrackNumber', max_length=64, blank=True, null=True)  # Field name made lowercase.
@@ -55,7 +55,7 @@ class Creditcomment(models.Model):
     creditcommentid = models.BigAutoField(db_column='CreditCommentID', primary_key=True)  # Field name made lowercase.
     creditid = models.ForeignKey(Credit, models.DO_NOTHING, db_column='CreditID')  # Field name made lowercase.
     comment = models.TextField(db_column='Comment')  # Field name made lowercase.
-    userid = models.ForeignKey('AuthUser', models.DO_NOTHING, db_column='UserID')  # Field name made lowercase.
+    userid = models.ForeignKey('AuthUser', models.DO_NOTHING, db_column='UserID', default=1)  # Field name made lowercase.
     created = models.DateTimeField(db_column='Created')  # Field name made lowercase.
 
     class Meta:
@@ -63,14 +63,35 @@ class Creditcomment(models.Model):
         db_table = 'CreditComment'
 
 
+class Debit(models.Model):
+    debitid = models.BigAutoField(db_column='DebitID', primary_key=True)  # Field name made lowercase.
+    warehouseid = models.ForeignKey('Warehouse', models.DO_NOTHING, db_column='WarehouseID')  # Field name made lowercase.
+    productid = models.ForeignKey('Product', models.DO_NOTHING, db_column='ProductID')  # Field name made lowercase.
+    qty = models.DecimalField(db_column='Qty', max_digits=10, decimal_places=2)  # Field name made lowercase.
+    price = models.DecimalField(db_column='Price', max_digits=10, decimal_places=2)  # Field name made lowercase.
+    pricetypeid = models.ForeignKey('Pricetype', models.DO_NOTHING, db_column='PriceTypeID')  # Field name made lowercase.
+    discountid = models.ForeignKey('Discount', models.DO_NOTHING, db_column='DiscountID')  # Field name made lowercase.
+    tracknumber = models.CharField(db_column='TrackNumber', unique=True, max_length=64)  # Field name made lowercase.
+    statusid = models.ForeignKey('Status', models.DO_NOTHING, db_column='StatusID')  # Field name made lowercase.
+    notes = models.TextField(db_column='Notes', blank=True, null=True)  # Field name made lowercase.
+    userid = models.ForeignKey('AuthUser', models.DO_NOTHING, db_column='UserID', default=1)  # Field name made lowercase.
+    created = models.DateTimeField(db_column='Created')  # Field name made lowercase.
+
+    class Meta:
+        managed = True
+        db_table = 'Debit'
+        ordering = ['-debitid']
+
+
 class Creditdetails(models.Model):
     creditdetailsid = models.BigAutoField(db_column='CreditDetailsID', primary_key=True)  # Field name made lowercase.
-    creditid = models.ForeignKey(Credit, models.DO_NOTHING, db_column='CreditID')  # Field name made lowercase.
-    productid = models.ForeignKey('Product', models.DO_NOTHING, db_column='ProductID')  # Field name made lowercase.
+    creditid = models.ForeignKey(Credit, models.DO_NOTHING, db_column='CreditID', default=0)  # Field name made lowercase.
+    debitid = models.ForeignKey(Debit, models.DO_NOTHING, db_column='DebitID', default=44)
+    productid = models.ForeignKey('Product', models.DO_NOTHING, db_column='ProductID', default=0)  # Field name made lowercase.
     price = models.DecimalField(db_column='Price', max_digits=10, decimal_places=2)  # Field name made lowercase.
     qty = models.DecimalField(db_column='Qty', max_digits=10, decimal_places=2)  # Field name made lowercase.
-    pricetypeid = models.ForeignKey('Pricetype', models.DO_NOTHING, db_column='PriceTypeID')  # Field name made lowercase.
-    userid = models.ForeignKey('AuthUser', models.DO_NOTHING, db_column='UserID')  # Field name made lowercase.
+    pricetypeid = models.ForeignKey('Pricetype', models.DO_NOTHING, db_column='PriceTypeID', default=0)  # Field name made lowercase.
+    userid = models.ForeignKey('AuthUser', models.DO_NOTHING, db_column='UserID', default=1)  # Field name made lowercase.
     created = models.DateTimeField(db_column='Created')  # Field name made lowercase.
 
     class Meta:
@@ -79,13 +100,13 @@ class Creditdetails(models.Model):
 
 
 class Creditloss(models.Model):
-    creditlossid = models.BigAutoField(db_column='CreditLossID', primary_key=True)  # Field name made lowercase.
-    creditid = models.ForeignKey(Credit, models.DO_NOTHING, db_column='CreditID')  # Field name made lowercase.
-    losstypeid = models.ForeignKey('Losstype', models.DO_NOTHING, db_column='LossTypeID')  # Field name made lowercase.
-    rate = models.DecimalField(db_column='Rate', max_digits=10, decimal_places=2)  # Field name made lowercase.
-    userid = models.ForeignKey('AuthUser', models.DO_NOTHING, db_column='UserID')  # Field name made lowercase.
-    created = models.DateTimeField(db_column='Created')  # Field name made lowercase.
+    creditlossid = models.AutoField(db_column='CreditLossID', primary_key=True)  # Field name made lowercase.
+    creditid = models.ForeignKey(Credit, models.DO_NOTHING, db_column='CreditID', default=1)  # Field name made lowercase.
+    losstypeid = models.ForeignKey('Losstype', models.DO_NOTHING, db_column='LossTypeID',default=1)  # Field name made lowercase.
+    rate = models.DecimalField(db_column='Rate', max_digits=10, decimal_places=2,default=0)  # Field name made lowercase.
     notes = models.CharField(db_column='Notes', max_length=1024, blank=True, null=True)  # Field name made lowercase.
+    userid = models.ForeignKey('AuthUser', models.DO_NOTHING, db_column='UserID',default=1)  # Field name made lowercase.
+    created = models.DateTimeField(db_column='Created')  # Field name made lowercase.
 
     class Meta:
         managed = True
@@ -96,7 +117,7 @@ class Credittype(models.Model):
     credittypeid = models.AutoField(db_column='CreditTypeID', primary_key=True)  # Field name made lowercase.
     title = models.CharField(db_column='Title', max_length=32)  # Field name made lowercase.
     description = models.CharField(db_column='Description', max_length=64, blank=True, null=True)  # Field name made lowercase.
-    userid = models.ForeignKey('AuthUser', models.DO_NOTHING, db_column='UserID')  # Field name made lowercase.
+    userid = models.ForeignKey('AuthUser', models.DO_NOTHING, db_column='UserID', default=1)  # Field name made lowercase.
     created = models.DateTimeField(db_column='Created')  # Field name made lowercase.
 
     class Meta:
@@ -104,26 +125,12 @@ class Credittype(models.Model):
         db_table = 'CreditType'
 
 
-class Debit(models.Model):
-    debitid = models.BigAutoField(db_column='DebitID', primary_key=True)  # Field name made lowercase.
-    warehouseid = models.ForeignKey('Warehouse', models.DO_NOTHING, db_column='WarehouseID')  # Field name made lowercase.
-    tracknumber = models.CharField(db_column='TrackNumber', unique=True, max_length=64)  # Field name made lowercase.
-    notes = models.TextField(db_column='Notes', blank=True, null=True)  # Field name made lowercase.
-    userid = models.ForeignKey('AuthUser', models.DO_NOTHING, db_column='UserID')  # Field name made lowercase.
-    created = models.DateTimeField(db_column='Created')  # Field name made lowercase.
-
-    class Meta:
-        managed = True
-        db_table = 'Debit'
-        ordering = ['-debitid']
-
-
 class Discount(models.Model):
     discountid = models.AutoField(db_column='DiscountID', primary_key=True)  # Field name made lowercase.
     title = models.CharField(db_column='Title', max_length=48)  # Field name made lowercase.
-    rate = models.DecimalField(db_column='Rate', max_digits=10, decimal_places=2)  # Field name made lowercase.
+    rate = models.DecimalField(db_column='Rate', max_digits=10, decimal_places=2, default=0)  # Field name made lowercase.
     units = models.CharField(db_column='Units', max_length=5)  # Field name made lowercase.
-    userid = models.ForeignKey('AuthUser', models.DO_NOTHING, db_column='UserID')  # Field name made lowercase.
+    userid = models.ForeignKey('AuthUser', models.DO_NOTHING, db_column='UserID', default=1)  # Field name made lowercase.
     created = models.DateTimeField(db_column='Created')  # Field name made lowercase.
 
     class Meta:
@@ -134,7 +141,7 @@ class Discount(models.Model):
 class Losstype(models.Model):
     losstypeid = models.AutoField(db_column='LossTypeID', primary_key=True)  # Field name made lowercase.
     title = models.CharField(db_column='Title', max_length=64)  # Field name made lowercase.
-    userid = models.ForeignKey('AuthUser', models.DO_NOTHING, db_column='UserID')  # Field name made lowercase.
+    userid = models.ForeignKey('AuthUser', models.DO_NOTHING, db_column='UserID', default=1)  # Field name made lowercase.
     created = models.DateTimeField(db_column='Created')  # Field name made lowercase.
 
     class Meta:
@@ -147,7 +154,7 @@ class Pricetype(models.Model):
     title = models.CharField(db_column='Title', max_length=48)  # Field name made lowercase.
     description = models.CharField(db_column='Description', max_length=48, blank=True, null=True)  # Field name made lowercase.
     ratio = models.DecimalField(db_column='Ratio', max_digits=10, decimal_places=2)  # Field name made lowercase.
-    userid = models.ForeignKey('AuthUser', models.DO_NOTHING, db_column='UserID')  # Field name made lowercase.
+    userid = models.ForeignKey('AuthUser', models.DO_NOTHING, db_column='UserID', default=1)  # Field name made lowercase.
     created = models.DateTimeField(db_column='Created')  # Field name made lowercase.
 
     class Meta:
@@ -157,18 +164,10 @@ class Pricetype(models.Model):
 
 class Product(models.Model):
     productid = models.BigAutoField(db_column='ProductID', primary_key=True)  # Field name made lowercase.
-    debitid = models.ForeignKey(Debit, models.DO_NOTHING, db_column='DebitID')  # Field name made lowercase.
     categoryid = models.ForeignKey(Category, models.DO_NOTHING, db_column='CategoryID')  # Field name made lowercase.
     title = models.CharField(db_column='Title', max_length=48)  # Field name made lowercase.
-    qty = models.DecimalField(db_column='Qty', max_digits=10, decimal_places=2)  # Field name made lowercase.
-    price = models.DecimalField(db_column='Price', max_digits=10, decimal_places=2)  # Field name made lowercase.
-    price2 = models.DecimalField(db_column='Price2', max_digits=10, decimal_places=2)  # Field name made lowercase.
-    price3 = models.DecimalField(db_column='Price3', max_digits=10, decimal_places=2)  # Field name made lowercase.
-    pricetypeid = models.ForeignKey(Pricetype, models.DO_NOTHING, db_column='PriceTypeID')  # Field name made lowercase.
-    discountid = models.ForeignKey(Discount, models.DO_NOTHING, db_column='DiscountID')  # Field name made lowercase.
-    statusid = models.ForeignKey('Status', models.DO_NOTHING, db_column='StatusID')  # Field name made lowercase.
     description = models.TextField(db_column='Description', blank=True, null=True)  # Field name made lowercase.
-    userid = models.ForeignKey('AuthUser', models.DO_NOTHING, db_column='UserID')  # Field name made lowercase.
+    userid = models.ForeignKey('AuthUser', models.DO_NOTHING, db_column='UserID', default=1)  # Field name made lowercase.
     created = models.DateTimeField(db_column='Created')  # Field name made lowercase.
 
     class Meta:
@@ -180,7 +179,7 @@ class Productcomment(models.Model):
     productcommentid = models.BigAutoField(db_column='ProductCommentID', primary_key=True)  # Field name made lowercase.
     productid = models.ForeignKey(Product, models.DO_NOTHING, db_column='ProductID')  # Field name made lowercase.
     comment = models.TextField(db_column='Comment')  # Field name made lowercase.
-    userid = models.ForeignKey('AuthUser', models.DO_NOTHING, db_column='UserID')  # Field name made lowercase.
+    userid = models.ForeignKey('AuthUser', models.DO_NOTHING, db_column='UserID', default=1)  # Field name made lowercase.
     created = models.DateTimeField(db_column='Created')  # Field name made lowercase.
 
     class Meta:
@@ -198,7 +197,7 @@ class Productdetails(models.Model):
     height = models.DecimalField(db_column='Height', max_digits=10, decimal_places=2, blank=True, null=True)  # Field name made lowercase.
     width = models.DecimalField(db_column='Width', max_digits=10, decimal_places=2, blank=True, null=True)  # Field name made lowercase.
     lenght = models.DecimalField(db_column='Lenght', max_digits=10, decimal_places=2, blank=True, null=True)  # Field name made lowercase.
-    userid = models.ForeignKey('AuthUser', models.DO_NOTHING, db_column='UserID')  # Field name made lowercase.
+    userid = models.ForeignKey('AuthUser', models.DO_NOTHING, db_column='UserID', default=1)  # Field name made lowercase.
     created = models.DateTimeField(db_column='Created')  # Field name made lowercase.
 
     class Meta:
@@ -209,8 +208,8 @@ class Productdetails(models.Model):
 class Status(models.Model):
     statusid = models.AutoField(db_column='StatusID', primary_key=True)  # Field name made lowercase.
     title = models.CharField(db_column='Title', max_length=48)  # Field name made lowercase.
-    color = models.CharField(db_column='Color', max_length=32)  # Field name made lowercase.
-    userid = models.ForeignKey('AuthUser', models.DO_NOTHING, db_column='UserID')  # Field name made lowercase.
+    color = models.CharField(db_column='Color', max_length=32, default='000000')  # Field name made lowercase.
+    userid = models.ForeignKey('AuthUser', models.DO_NOTHING, db_column='UserID', default=1)  # Field name made lowercase.
     created = models.DateTimeField(db_column='Created')  # Field name made lowercase.
 
     class Meta:
@@ -223,11 +222,11 @@ class Warehouse(models.Model):
     warehouseid = models.AutoField(db_column='WarehouseID', primary_key=True)  # Field name made lowercase.
     title = models.CharField(db_column='Title', max_length=48)  # Field name made lowercase.
     description = models.CharField(db_column='Description', max_length=256, blank=True, null=True)  # Field name made lowercase.
-    incoming = models.BooleanField(db_column='Incoming')  # Field name made lowercase.
-    outgoing = models.BooleanField(db_column='Outgoing')  # Field name made lowercase.
     active = models.BooleanField(db_column='Active')  # Field name made lowercase.
-    userid = models.ForeignKey('AuthUser', models.DO_NOTHING, db_column='UserID')  # Field name made lowercase.
+    userid = models.ForeignKey('AuthUser', models.DO_NOTHING, db_column='UserID', default=1)  # Field name made lowercase.
     created = models.DateTimeField(db_column='Created')  # Field name made lowercase.
+    in_field = models.BooleanField(db_column='In')  # Field name made lowercase. Field renamed because it was a Python reserved word.
+    out = models.BooleanField(db_column='Out')  # Field name made lowercase.
 
     class Meta:
         managed = True

@@ -71,13 +71,7 @@ def update_productcomment(data):
 
 def create_debit(info, data):
     debit = Debit(warehouseid=Warehouse.objects.get(pk=data.get("warehouseid")),
-                  productid=Product.objects.get(pk=data.get("productid")),
-                  qty=data.get("qty", 0.00),
-                  price=data.get("price", 0.00),
-                  pricetypeid=Pricetype.objects.get(pk=data.get("pricetypeid")),
-                  discountid=Discount.objects.get(pk=data.get("discountid")),
                   tracknumber=data.get("tracknumber"),
-                  statusid=Status.objects.get(pk=data.get("statusid")),
                   notes=data.get("notes", None),
                   userid=AuthUser.objects.get(pk=info.context.user.id),
                   created=timezone.now())
@@ -89,12 +83,6 @@ def create_debit(info, data):
 def update_debit(data):
     debit = Debit.objects.get(pk=data.get("debitid"))
     debit.warehouseid = Warehouse.objects.get(pk=data.get("warehouseid"))
-    debit.productid = Product.objects.get(pk=data.get("productid"))
-    debit.pricetypeid = Pricetype.objects.get(pk=data.get("pricetypeid"))
-    debit.discountid = Discount.objects.get(pk=data.get("discountid"))
-    debit.statusid = Status.objects.get(pk=data.get("statusid"))
-    debit.qty = data.get("qty")
-    debit.price = data.get("price")
     debit.tracknumber = data.get("tracknumber")
     debit.notes = data.get("notes", None)
 
