@@ -50,8 +50,8 @@ class UpdateWarehouse(graphene.Mutation):
         title = graphene.String(required=True)
         description = graphene.String()
         active = graphene.Boolean(required=True)
-        in_field = graphene.Boolean(required=True)
-        out = graphene.Boolean(required=True)
+        incoming = graphene.Boolean(required=True)
+        outgoing = graphene.Boolean(required=True)
 
     warehouse = graphene.Field(WarehouseType)
 
